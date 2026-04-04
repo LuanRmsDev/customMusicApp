@@ -2,6 +2,7 @@ package dev.luanramos.custommusicapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import dagger.hilt.android.AndroidEntryPoint
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.Crossfade
@@ -20,6 +21,7 @@ import kotlinx.coroutines.delay
 
 private const val SplashVisibleMillis = 2_000L
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
