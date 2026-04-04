@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,7 +25,8 @@ import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 fun LibraryTopBar(
     title: String,
     modifier: Modifier = Modifier,
-    onSearchClick: (() -> Unit)? = null
+    isSearchActive: Boolean = false,
+    onSearchToggleClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = modifier
@@ -39,17 +41,26 @@ fun LibraryTopBar(
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.weight(1f)
         )
-        if (onSearchClick != null) {
+        if (onSearchToggleClick != null) {
             IconButton(
-                onClick = onSearchClick,
+                onClick = onSearchToggleClick,
                 modifier = Modifier.size(48.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = stringResource(R.string.library_search_content_description),
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(24.dp)
-                )
+                if (isSearchActive) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.library_close_search_content_description),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = stringResource(R.string.library_search_content_description),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
     }
@@ -61,7 +72,19 @@ private fun LibraryTopBarPreview() {
     CustomMusicAppTheme {
         LibraryTopBar(
             title = "Songs",
-            onSearchClick = {}
+            onSearchToggleClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun LibraryTopBarSearchActivePreview() {
+    CustomMusicAppTheme {
+        LibraryTopBar(
+            title = "Songs",
+            isSearchActive = true,
+            onSearchToggleClick = {}
         )
     }
 }

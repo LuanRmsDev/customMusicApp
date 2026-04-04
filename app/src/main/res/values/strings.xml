@@ -5,6 +5,8 @@
     <string name="library_screen_title">Library</string>
     <string name="songs_screen_title">Songs</string>
     <string name="library_search_content_description">Search</string>
+    <string name="library_search_placeholder">Search</string>
+    <string name="library_close_search_content_description">Close search</string>
     <string name="song_more_content_description">More options</string>
     <string name="library_section_recently_played">Recently played</string>
     <string name="library_section_your_library">Your library</string>
