@@ -1,0 +1,54 @@
+package dev.luanramos.custommusicapp.navigation
+
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.ui.NavDisplay
+import dev.luanramos.custommusicapp.ui.library.AlbumDetailsScreen
+import dev.luanramos.custommusicapp.ui.library.LibraryPlayerScreen
+import dev.luanramos.custommusicapp.ui.library.LibraryScreen
+
+@Composable
+fun LibraryNavHost(modifier: Modifier = Modifier) {
+    val backStack = remember {
+        mutableStateListOf<LibraryDestination>(LibraryDestination.LibraryScreen)
+    }
+
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        entryProvider = { key ->
+            when (key) {
+                is LibraryDestination.LibraryScreen -> NavEntry(key) {
+                    LibraryScreen(
+                        onOpenPlayer = {
+                            backStack.add(LibraryDestination.LibraryPlayerScreen)
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                is LibraryDestination.LibraryPlayerScreen -> NavEntry(key) {
+                    LibraryPlayerScreen(
+                        onOpenAlbumDetails = {
+                            backStack.add(LibraryDestination.AlbumDetailsScreen)
+                        },
+                        onBack = { backStack.removeLastOrNull() },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                is LibraryDestination.AlbumDetailsScreen -> NavEntry(key) {
+                    AlbumDetailsScreen(
+                        onBack = { backStack.removeLastOrNull() },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+        },
+        modifier = modifier
+    )
+}
