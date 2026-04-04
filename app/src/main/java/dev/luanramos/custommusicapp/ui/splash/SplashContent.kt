@@ -77,7 +77,7 @@ fun SplashContent(modifier: Modifier = Modifier) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun SplashContentPreview() {
-    CustomMusicAppTheme(darkTheme = true, dynamicColor = false) {
+    CustomMusicAppTheme() {
         SplashContent()
     }
 }
