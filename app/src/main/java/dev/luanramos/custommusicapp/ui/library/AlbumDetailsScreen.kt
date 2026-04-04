@@ -10,7 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.luanramos.custommusicapp.R
 
 @Composable
 fun AlbumDetailsScreen(
@@ -25,11 +27,11 @@ fun AlbumDetailsScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Album details",
+            text = stringResource(R.string.screen_album_details_title),
             style = MaterialTheme.typography.headlineMedium
         )
         Button(onClick = onBack) {
-            Text("Back")
+            Text(stringResource(R.string.action_back))
         }
     }
 }

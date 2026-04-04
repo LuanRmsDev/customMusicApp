@@ -1,4 +1,17 @@
 <resources>
     <string name="app_name">Custom Music App</string>
     <string name="splash_tagline">Your sound, uninterrupted</string>
+
+    <string name="library_screen_title">Library</string>
+    <string name="songs_screen_title">Songs</string>
+    <string name="library_search_content_description">Search</string>
+    <string name="song_more_content_description">More options</string>
+    <string name="library_section_recently_played">Recently played</string>
+    <string name="library_section_your_library">Your library</string>
+
+    <string name="screen_player_title">Player</string>
+    <string name="action_open_player">Open player</string>
+    <string name="action_open_album_details">Open album details</string>
+    <string name="screen_album_details_title">Album details</string>
+    <string name="action_back">Back</string>
 </resources>

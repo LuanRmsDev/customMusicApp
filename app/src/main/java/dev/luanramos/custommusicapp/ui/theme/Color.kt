@@ -9,6 +9,8 @@ val white = Color(0xFFFFFFFF)
 val darkGrey = Color(0xFF13131C)
 val mediumGrey = Color(0xFF1E1E2A)
 val mutedGrey = Color(0xFF9E9EAE)
+val greyArtist = Color(0xFF737373)
+val greyIcon = Color(0xFF545454)
 val borderGrey = Color(0xFF3D3D4D)
 val borderGreyDark = Color(0xFF2A2A36)
 

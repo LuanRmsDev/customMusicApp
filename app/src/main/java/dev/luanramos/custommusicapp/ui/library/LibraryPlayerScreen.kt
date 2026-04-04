@@ -10,7 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.luanramos.custommusicapp.R
 
 @Composable
 fun LibraryPlayerScreen(
@@ -26,14 +28,14 @@ fun LibraryPlayerScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Player",
+            text = stringResource(R.string.screen_player_title),
             style = MaterialTheme.typography.headlineMedium
         )
         Button(onClick = onBack) {
-            Text("Back")
+            Text(stringResource(R.string.action_back))
         }
         Button(onClick = onOpenAlbumDetails) {
-            Text("Open album details")
+            Text(stringResource(R.string.action_open_album_details))
         }
     }
 }

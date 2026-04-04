@@ -56,7 +56,7 @@ val Typography = Typography(
         fontFamily = ArticulatCfFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp,
-        lineHeight = 32.sp,
+        lineHeight = 28.8.sp,
         letterSpacing = 0.sp
     ),
     titleLarge = TextStyle(
@@ -70,8 +70,8 @@ val Typography = Typography(
         fontFamily = ArticulatCfFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.15.sp
+        lineHeight = 19.2.sp,
+        letterSpacing = 0.sp
     ),
     titleSmall = TextStyle(
         fontFamily = ArticulatCfFamily,
@@ -112,8 +112,8 @@ val Typography = Typography(
         fontFamily = ArticulatCfFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 12.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        lineHeight = 16.8.sp,
+        letterSpacing = 0.sp
     ),
     labelSmall = TextStyle(
         fontFamily = ArticulatCfFamily,
