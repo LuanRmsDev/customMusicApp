@@ -11,13 +11,17 @@ import dev.luanramos.custommusicapp.domain.TrackPlaybackState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.update
 
-class ExoTrackPlaybackController(
-    context: Context
+@Singleton
+class ExoTrackPlaybackController @Inject constructor(
+    @ApplicationContext context: Context
 ) : TrackPlaybackController {
 
-    private val appContext = context.applicationContext
+    private val appContext = context
 
     private val _state = MutableStateFlow(TrackPlaybackState())
     override val state: StateFlow<TrackPlaybackState> = _state.asStateFlow()
@@ -99,7 +103,7 @@ class ExoTrackPlaybackController(
         _state.value = TrackPlaybackState()
     }
 
-    fun release() {
+    override fun release() {
         player.release()
         _state.value = TrackPlaybackState()
     }

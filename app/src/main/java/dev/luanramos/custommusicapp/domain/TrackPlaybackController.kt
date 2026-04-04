@@ -19,4 +19,7 @@ interface TrackPlaybackController {
     fun resume()
 
     fun stop()
+
+    /** Release native resources */
+    fun release()
 }
