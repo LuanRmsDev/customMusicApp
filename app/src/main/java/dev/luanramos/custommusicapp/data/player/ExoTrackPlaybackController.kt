@@ -1,19 +1,21 @@
 package dev.luanramos.custommusicapp.data.player
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.luanramos.custommusicapp.domain.Music
 import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import dev.luanramos.custommusicapp.domain.TrackPlaybackState
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.update
 
 @Singleton
@@ -26,6 +28,24 @@ class ExoTrackPlaybackController @Inject constructor(
     private val _state = MutableStateFlow(TrackPlaybackState())
     override val state: StateFlow<TrackPlaybackState> = _state.asStateFlow()
 
+    private val progressHandler = Handler(Looper.getMainLooper())
+    private val progressTick = object : Runnable {
+        override fun run() {
+            val duration = player.duration
+            if (duration > 0) {
+                _state.update {
+                    it.copy(
+                        positionMs = player.currentPosition,
+                        durationMs = duration
+                    )
+                }
+            }
+            if (player.isPlaying) {
+                progressHandler.postDelayed(this, 500L)
+            }
+        }
+    }
+
     private val player: ExoPlayer = ExoPlayer.Builder(appContext).build().apply {
         addListener(
             object : Player.Listener {
@@ -33,10 +53,27 @@ class ExoTrackPlaybackController @Inject constructor(
                     when (playbackState) {
                         Player.STATE_BUFFERING ->
                             _state.update { it.copy(isBuffering = true) }
-                        Player.STATE_READY ->
-                            _state.update { it.copy(isBuffering = false) }
-                        Player.STATE_ENDED ->
-                            _state.update { it.copy(isPlaying = false, isBuffering = false) }
+                        Player.STATE_READY -> {
+                            val d = player.duration
+                            _state.update {
+                                it.copy(
+                                    isBuffering = false,
+                                    durationMs = if (d > 0) d else it.durationMs,
+                                    positionMs = player.currentPosition
+                                )
+                            }
+                            if (player.isPlaying) startProgressUpdates()
+                        }
+                        Player.STATE_ENDED -> {
+                            stopProgressUpdates()
+                            _state.update {
+                                it.copy(
+                                    isPlaying = false,
+                                    isBuffering = false,
+                                    positionMs = it.durationMs
+                                )
+                            }
+                        }
                         Player.STATE_IDLE ->
                             _state.update {
                                 it.copy(isPlaying = false, isBuffering = false)
@@ -46,9 +83,11 @@ class ExoTrackPlaybackController @Inject constructor(
 
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
                     _state.update { it.copy(isPlaying = isPlaying, isBuffering = false) }
+                    if (isPlaying) startProgressUpdates() else stopProgressUpdates()
                 }
 
                 override fun onPlayerError(error: PlaybackException) {
+                    stopProgressUpdates()
                     _state.update {
                         it.copy(
                             isPlaying = false,
@@ -61,7 +100,17 @@ class ExoTrackPlaybackController @Inject constructor(
         )
     }
 
+    private fun startProgressUpdates() {
+        progressHandler.removeCallbacks(progressTick)
+        progressHandler.post(progressTick)
+    }
+
+    private fun stopProgressUpdates() {
+        progressHandler.removeCallbacks(progressTick)
+    }
+
     override fun play(track: Music) {
+        stopProgressUpdates()
         val url = track.songUrl
         if (url == null) {
             player.stop()
@@ -70,7 +119,9 @@ class ExoTrackPlaybackController @Inject constructor(
                 currentTrack = track,
                 isPlaying = false,
                 isBuffering = false,
-                errorMessage = null
+                errorMessage = null,
+                positionMs = 0L,
+                durationMs = 0L
             )
             return
         }
@@ -79,7 +130,9 @@ class ExoTrackPlaybackController @Inject constructor(
                 currentTrack = track,
                 isPlaying = false,
                 isBuffering = true,
-                errorMessage = null
+                errorMessage = null,
+                positionMs = 0L,
+                durationMs = 0L
             )
         }
         player.setMediaItem(MediaItem.fromUri(url))
@@ -98,12 +151,41 @@ class ExoTrackPlaybackController @Inject constructor(
     }
 
     override fun stop() {
+        stopProgressUpdates()
         player.stop()
         player.clearMediaItems()
         _state.value = TrackPlaybackState()
     }
 
+    override fun seekTo(positionMs: Long) {
+        val d = when {
+            player.duration > 0 -> player.duration
+            _state.value.durationMs > 0 -> _state.value.durationMs
+            else -> 0L
+        }
+        val coerced = if (d > 0) positionMs.coerceIn(0L, d) else positionMs.coerceAtLeast(0L)
+        player.seekTo(coerced)
+        _state.update {
+            it.copy(
+                positionMs = coerced,
+                durationMs = if (player.duration > 0) player.duration else it.durationMs
+            )
+        }
+    }
+
+    override fun skipToPrevious() {
+        player.seekTo(0L)
+        _state.update { it.copy(positionMs = 0L) }
+    }
+
+    override fun skipToNext() {
+        if (player.hasNextMediaItem()) {
+            player.seekToNextMediaItem()
+        }
+    }
+
     override fun release() {
+        stopProgressUpdates()
         player.release()
         _state.value = TrackPlaybackState()
     }

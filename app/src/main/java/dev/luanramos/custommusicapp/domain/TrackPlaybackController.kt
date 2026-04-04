@@ -6,7 +6,9 @@ data class TrackPlaybackState(
     val currentTrack: Music? = null,
     val isPlaying: Boolean = false,
     val isBuffering: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val positionMs: Long = 0L,
+    val durationMs: Long = 0L
 )
 
 interface TrackPlaybackController {
@@ -19,6 +21,12 @@ interface TrackPlaybackController {
     fun resume()
 
     fun stop()
+
+    fun seekTo(positionMs: Long)
+
+    fun skipToPrevious()
+
+    fun skipToNext()
 
     /** Release native resources */
     fun release()

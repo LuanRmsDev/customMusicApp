@@ -12,6 +12,15 @@
     <string name="library_section_your_library">Your library</string>
 
     <string name="screen_player_title">Player</string>
+    <string name="player_now_playing_title">Now playing</string>
+    <string name="player_play">Play</string>
+    <string name="player_pause">Pause</string>
+    <string name="player_buffering">Loading…</string>
+    <string name="player_no_track">Choose a song from the library to play.</string>
+    <string name="player_skip_previous">Skip to previous</string>
+    <string name="player_skip_next">Skip to next</string>
+    <string name="player_repeat">Repeat</string>
+    <string name="player_open_menu">Open menu</string>
     <string name="action_open_player">Open player</string>
     <string name="action_open_album_details">Open album details</string>
     <string name="screen_album_details_title">Album details</string>

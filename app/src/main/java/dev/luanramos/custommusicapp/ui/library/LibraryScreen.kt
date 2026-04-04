@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,14 +29,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.luanramos.custommusicapp.R
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
-import dev.luanramos.custommusicapp.domain.LibrarySong
+import dev.luanramos.custommusicapp.domain.Music
+import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import dev.luanramos.custommusicapp.ui.components.LibrarySearchField
 import dev.luanramos.custommusicapp.ui.components.LibrarySongRow
 import dev.luanramos.custommusicapp.ui.components.LibraryTopBar
+import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable
 fun LibraryScreen(
+    playback: TrackPlaybackController,
     onOpenPlayer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -89,14 +92,17 @@ fun LibraryScreen(
                 .navigationBarsPadding(),
             contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 16.dp)
         ) {
-            itemsIndexed(
+            items(
                 items = songs,
-                key = { index, song -> "${index}_${song.title}_${song.artist}" }
-            ) { _, song ->
+                key = { it.id }
+            ) { song ->
                 LibrarySongRow(
                     title = song.title,
                     artist = song.artist,
-                    onRowClick = onOpenPlayer,
+                    onRowClick = {
+                        playback.play(song)
+                        onOpenPlayer()
+                    },
                     onMoreClick = { /* overflow menu */ }
                 )
             }
@@ -104,7 +110,7 @@ fun LibraryScreen(
     }
 }
 
-private fun filterSongs(songs: List<LibrarySong>, query: String): List<LibrarySong> {
+private fun filterSongs(songs: List<Music>, query: String): List<Music> {
     val q = query.trim()
     if (q.isEmpty()) return songs
     return songs.filter { song ->
@@ -117,6 +123,9 @@ private fun filterSongs(songs: List<LibrarySong>, query: String): List<LibrarySo
 @Composable
 private fun LibraryScreenPreview() {
     CustomMusicAppTheme {
-        LibraryScreen(onOpenPlayer = {})
+        LibraryScreen(
+            playback = FakeTrackPlaybackController,
+            onOpenPlayer = {}
+        )
     }
 }
