@@ -1,4 +1,4 @@
-package dev.luanramos.custommusicapp.di
+package dev.luanramos.custommusicapp.data.di
 
 import dagger.Binds
 import dagger.Module

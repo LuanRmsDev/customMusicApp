@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
+import dev.luanramos.custommusicapp.data.di.PlaybackModule
 import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import javax.inject.Singleton
