@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -30,13 +31,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.luanramos.custommusicapp.R
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
+import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.Music
 import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import dev.luanramos.custommusicapp.ui.components.LibrarySearchField
 import dev.luanramos.custommusicapp.ui.components.LibrarySongRow
 import dev.luanramos.custommusicapp.ui.components.LibraryTopBar
 import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
-import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable
@@ -46,11 +47,17 @@ fun LibraryScreen(
     onLibraryMenuViewAlbum: (Music) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isSearchActive by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
-    var menuSong by remember { mutableStateOf<Music?>(null) }
+    var isSearchActive by rememberSaveable { mutableStateOf(false) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var menuSongId by rememberSaveable { mutableStateOf<String?>(null) }
     val searchFocusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
+
+    val songsById = remember {
+        (LibraryMockedData.songs + LibraryMockedData.sampleDisplayAlbumTracks)
+            .associateBy { it.id }
+    }
+    val menuSong = remember(menuSongId) { menuSongId?.let { songsById[it] } }
 
     val songs = remember(searchQuery) {
         filterSongs(LibraryMockedData.songs, searchQuery)
@@ -108,7 +115,7 @@ fun LibraryScreen(
                             playback.play(song)
                             onOpenPlayer()
                         },
-                        onMoreClick = { menuSong = song }
+                        onMoreClick = { menuSongId = song.id }
                     )
                 }
             }
@@ -116,7 +123,7 @@ fun LibraryScreen(
 
         menuSong?.let { song ->
             PlayerMenuBottomSheet(
-                onDismiss = { menuSong = null },
+                onDismiss = { menuSongId = null },
                 songTitle = song.title,
                 artistName = song.artist,
                 onViewAlbumClick = { onLibraryMenuViewAlbum(song) }
