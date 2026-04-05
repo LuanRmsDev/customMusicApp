@@ -6,6 +6,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface TrackPlayRecorder {
+    /** Bumps play count and last-played time. */
     suspend fun recordPlay(track: Music)
 }
 

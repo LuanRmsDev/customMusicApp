@@ -4,20 +4,23 @@ import dev.luanramos.custommusicapp.data.local.db.entity.TrackEntity
 import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.domain.model.MusicArtwork
 
-/** Row for remote metadata merge; [playCount] / [lastPlayedAt] are overwritten when preserving stats. */
-fun Music.toRemoteTrackEntity(): TrackEntity =
+/**
+ * Maps a [Music] row for Room after local download: preview [Music.songUrl] is not stored;
+ * iTunes artwork URLs are persisted; audio/art binaries use [Music.localAudioPath] / [Music.localArtworkPath].
+ */
+fun Music.toPersistedTrackEntity(): TrackEntity =
     TrackEntity(
         id = id,
         title = title,
         artist = artist,
-        songUrl = songUrl,
+        songUrl = null,
         artworkUrl30 = artwork?.url30,
         artworkUrl60 = artwork?.url60,
         artworkUrl100 = artwork?.url100,
         artworkUrl160 = artwork?.url160,
         artworkUrl600 = artwork?.url600,
-        playCount = 0,
-        lastPlayedAt = null,
+        playCount = playCount,
+        lastPlayedAt = lastPlayedAt,
         localAudioPath = localAudioPath,
         localArtworkPath = localArtworkPath,
     )

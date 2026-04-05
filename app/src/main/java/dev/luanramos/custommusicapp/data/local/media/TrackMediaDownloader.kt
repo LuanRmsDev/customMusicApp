@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.luanramos.custommusicapp.data.local.db.MusicLibraryDao
-import dev.luanramos.custommusicapp.data.local.db.entity.TrackEntity
+import dev.luanramos.custommusicapp.data.local.db.toMusic
 import dev.luanramos.custommusicapp.domain.model.Music
 import java.io.File
 import java.io.FileOutputStream
@@ -17,9 +17,13 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
+/**
+ * Downloads preview audio and artwork from **transient** URLs on [Music] into app-private storage.
+ * Does **not** write to Room; callers persist after download (e.g. repository `saveSong`).
+ */
 @Singleton
 class TrackMediaDownloader @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val okHttpClient: OkHttpClient,
     private val dao: MusicLibraryDao,
 ) {
@@ -27,7 +31,9 @@ class TrackMediaDownloader @Inject constructor(
     private val artworkDir = File(context.filesDir, "artwork_cache").apply { mkdirs() }
     private val concurrency = Semaphore(2)
 
-    /** Prefer on-disk preview; fall back to remote [Music.songUrl]. */
+    /**
+     * Local file URI if cached audio exists; otherwise streaming [Music.songUrl] (e.g. API results not saved yet).
+     */
     fun playbackUri(music: Music): Uri? {
         val local = music.localAudioPath
         if (!local.isNullOrBlank()) {
@@ -41,64 +47,61 @@ class TrackMediaDownloader @Inject constructor(
     }
 
     /**
-     * Downloads preview audio and best-effort artwork when missing, then updates Room.
-     * Safe to call repeatedly; skips existing valid files.
+     * Downloads audio/art from [source]’s remote fields, merges with any existing row for play stats / paths,
+     * and returns a [Music] suitable for DB: **no** preview [Music.songUrl]; [Music.artwork] URLs are kept
+     * (merged from [source] or any existing row) for persistence.
      */
-    suspend fun downloadMissingFiles(trackId: String) =
+    suspend fun downloadForPersistence(source: Music): Music =
         concurrency.withPermit {
             withContext(Dispatchers.IO) {
-                val entity = dao.getTrack(trackId) ?: return@withContext
-                var current = entity
+                val stored = dao.getTrack(source.id)?.toMusic()
 
-                if (needsAudioDownload(current)) {
-                    val url = current.songUrl?.takeIf { it.isNotBlank() }
-                    if (url != null) {
-                        val out = File(audioDir, "${safeFileName(trackId)}.m4a")
-                        if (downloadToFile(url, out)) {
-                            current = current.copy(localAudioPath = out.absolutePath)
-                        }
+                var audioPath = source.localAudioPath ?: stored?.localAudioPath
+                var artworkPath = source.localArtworkPath ?: stored?.localArtworkPath
+
+                val audioUrl = source.songUrl?.takeIf { it.isNotBlank() }
+                if (audioUrl != null && shouldRedownload(audioPath)) {
+                    val out = File(audioDir, "${safeFileName(source.id)}.m4a")
+                    if (downloadToFile(audioUrl, out)) {
+                        audioPath = out.absolutePath
                     }
                 }
 
-                if (needsArtworkDownload(current)) {
-                    val artUrl = pickArtworkUrl(current)
-                    if (artUrl != null) {
-                        val out = File(artworkDir, "${safeFileName(trackId)}.jpg")
-                        if (downloadToFile(artUrl, out)) {
-                            current = current.copy(localArtworkPath = out.absolutePath)
-                        }
+                val artUrl = source.artwork?.preferredDisplayUrl?.takeIf { it.isNotBlank() }
+                if (artUrl != null && shouldRedownload(artworkPath)) {
+                    val ext = extensionForImageUrl(artUrl)
+                    val out = File(artworkDir, "${safeFileName(source.id)}.$ext")
+                    if (downloadToFile(artUrl, out)) {
+                        artworkPath = out.absolutePath
                     }
                 }
 
-                if (current != entity) {
-                    dao.updateTrack(current)
-                }
+                val artworkForDb = source.artwork ?: stored?.artwork
+                Music(
+                    id = source.id,
+                    title = source.title,
+                    artist = source.artist,
+                    songUrl = null,
+                    artwork = artworkForDb,
+                    playCount = stored?.playCount ?: source.playCount,
+                    lastPlayedAt = stored?.lastPlayedAt ?: source.lastPlayedAt,
+                    localAudioPath = audioPath,
+                    localArtworkPath = artworkPath,
+                )
             }
         }
 
-    private fun needsAudioDownload(e: TrackEntity): Boolean {
-        val p = e.localAudioPath
-        if (p.isNullOrBlank()) return e.songUrl != null
-        val f = File(p)
-        return !f.isFile || f.length() == 0L
+    /** Deletes all files under [audioDir] and [artworkDir]. */
+    fun clearCacheDirectories() {
+        audioDir.listFiles()?.forEach { it.deleteRecursively() }
+        artworkDir.listFiles()?.forEach { it.deleteRecursively() }
     }
 
-    private fun needsArtworkDownload(e: TrackEntity): Boolean {
-        if (pickArtworkUrl(e) == null) return false
-        val p = e.localArtworkPath
-        if (p.isNullOrBlank()) return true
-        val f = File(p)
+    private fun shouldRedownload(path: String?): Boolean {
+        if (path.isNullOrBlank()) return true
+        val f = File(path)
         return !f.isFile || f.length() == 0L
     }
-
-    private fun pickArtworkUrl(e: TrackEntity): String? =
-        listOf(
-            e.artworkUrl600,
-            e.artworkUrl160,
-            e.artworkUrl100,
-            e.artworkUrl60,
-            e.artworkUrl30,
-        ).firstOrNull { !it.isNullOrBlank() }
 
     private fun downloadToFile(url: String, outFile: File): Boolean {
         return runCatching {
@@ -121,4 +124,13 @@ class TrackMediaDownloader @Inject constructor(
 
     private fun safeFileName(id: String): String =
         id.replace(Regex("[^a-zA-Z0-9._-]"), "_").take(120)
+
+    private fun extensionForImageUrl(url: String): String {
+        val path = url.substringBefore('?').lowercase()
+        return when {
+            path.endsWith(".png") -> "png"
+            path.endsWith(".webp") -> "webp"
+            else -> "jpg"
+        }
+    }
 }
