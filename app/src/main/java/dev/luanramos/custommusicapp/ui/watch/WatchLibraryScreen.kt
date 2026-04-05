@@ -3,6 +3,7 @@ package dev.luanramos.custommusicapp.ui.watch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,23 +57,42 @@ fun WatchLibraryScreen(
             showBack = true,
             modifier = Modifier.padding(top = 4.dp)
         )
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 4.dp, bottom = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            items(
-                items = ui.songsList,
-                key = { it.id }
-            ) { song ->
-                WatchSongListRow(
-                    song = song,
-                    onClick = {
-                        viewModel.playTrack(song)
-                        onOpenPlayer()
-                    }
+        when {
+            ui.isLoading && ui.songsList.isEmpty() ->
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+
+            ui.songsList.isEmpty() ->
+                NoInternetScreen(
+                    onRetry = { viewModel.retryLoadLibrary() },
+                    modifier = Modifier.weight(1f),
                 )
-            }
+
+            else ->
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 4.dp, bottom = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(
+                        items = ui.songsList,
+                        key = { it.id }
+                    ) { song ->
+                        WatchSongListRow(
+                            song = song,
+                            onClick = {
+                                viewModel.playTrack(song)
+                                onOpenPlayer()
+                            }
+                        )
+                    }
+                }
         }
     }
 }

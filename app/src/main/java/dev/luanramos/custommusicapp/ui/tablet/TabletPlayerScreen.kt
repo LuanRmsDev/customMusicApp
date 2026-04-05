@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -205,21 +206,44 @@ fun TabletPlayerScreen(
                         modifier = Modifier.size(24.dp)
                     )
                 }
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 16.dp)
-                ) {
-                    items(
-                        items = ui.songsList,
-                        key = { it.id }
-                    ) { song ->
-                        TabletQueueSongRow(
-                            title = song.title,
-                            artist = song.artist,
-                            isCurrentTrack = song.id == state.currentTrack?.id,
-                            onClick = { viewModel.playTrack(song) }
+                when {
+                    ui.isLoading && ui.songsList.isEmpty() ->
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator()
+                        }
+
+                    ui.songsList.isEmpty() ->
+                        NoInternetScreen(
+                            onRetry = { viewModel.retryLoadLibrary() },
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
                         )
-                    }
+
+                    else ->
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentPadding = PaddingValues(bottom = 16.dp)
+                        ) {
+                            items(
+                                items = ui.songsList,
+                                key = { it.id }
+                            ) { song ->
+                                TabletQueueSongRow(
+                                    title = song.title,
+                                    artist = song.artist,
+                                    isCurrentTrack = song.id == state.currentTrack?.id,
+                                    onClick = { viewModel.playTrack(song) }
+                                )
+                            }
+                        }
                 }
             }
         }

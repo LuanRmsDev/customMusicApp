@@ -30,6 +30,8 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
                     CarBrowseScreen(
                         songs = ui.songsList,
                         currentTrackId = ui.playbackState.currentTrack?.id,
+                        isCatalogLoading = ui.isLoading,
+                        onRetryCatalog = { musicViewModel.retryLoadLibrary() },
                         onSongClick = { song ->
                             musicViewModel.playTrack(song)
                             backStack.add(LibraryDestination.LibraryPlayerScreen)

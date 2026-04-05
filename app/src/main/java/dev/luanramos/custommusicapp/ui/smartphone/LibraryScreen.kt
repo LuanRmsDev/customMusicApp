@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -107,26 +109,55 @@ fun LibraryScreen(
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
                 )
             }
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .navigationBarsPadding(),
-                contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 16.dp)
-            ) {
-                items(
-                    items = ui.songsList,
-                    key = { it.id }
-                ) { song ->
-                    LibrarySongRow(
-                        title = song.title,
-                        artist = song.artist,
-                        onRowClick = {
-                            viewModel.playTrack(song)
-                            onOpenPlayer()
-                        },
-                        onMoreClick = { menuSongId = song.id }
-                    )
+            val retryBrowse: () -> Unit = {
+                if (isSearchActive && searchQuery.isNotBlank()) {
+                    viewModel.onSearchQueryChange(searchQuery)
+                } else {
+                    viewModel.retryLoadLibrary()
                 }
+            }
+            when {
+                ui.isLoading && ui.songsList.isEmpty() ->
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxSize()
+                            .navigationBarsPadding(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+
+                ui.songsList.isEmpty() ->
+                    NoInternetScreen(
+                        onRetry = retryBrowse,
+                        modifier = Modifier
+                            .weight(1f)
+                            .navigationBarsPadding(),
+                    )
+
+                else ->
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .navigationBarsPadding(),
+                        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 16.dp)
+                    ) {
+                        items(
+                            items = ui.songsList,
+                            key = { it.id }
+                        ) { song ->
+                            LibrarySongRow(
+                                title = song.title,
+                                artist = song.artist,
+                                onRowClick = {
+                                    viewModel.playTrack(song)
+                                    onOpenPlayer()
+                                },
+                                onMoreClick = { menuSongId = song.id }
+                            )
+                        }
+                    }
             }
         }
 

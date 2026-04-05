@@ -32,10 +32,10 @@ class MusicViewModel @Inject constructor(
                 _uiState.update { it.copy(playbackState = pb) }
             }
         }
-        loadInitialLibrary()
+        loadCatalog()
     }
 
-    private fun loadInitialLibrary() {
+    private fun loadCatalog() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
@@ -45,6 +45,11 @@ class MusicViewModel @Inject constructor(
                 _uiState.update { it.copy(isLoading = false) }
             }
         }
+    }
+
+    /** Re-runs the initial popular catalog load (e.g. after a failed network attempt). */
+    fun retryLoadLibrary() {
+        loadCatalog()
     }
 
     /**

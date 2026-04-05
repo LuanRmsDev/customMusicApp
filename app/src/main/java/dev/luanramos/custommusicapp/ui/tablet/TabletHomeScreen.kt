@@ -1,6 +1,7 @@
 package dev.luanramos.custommusicapp.ui.tablet
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -74,26 +77,55 @@ fun TabletHomeScreen(
             },
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 0.dp)
         )
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .navigationBarsPadding(),
-            contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 24.dp)
-        ) {
-            items(
-                items = ui.songsList,
-                key = { it.id }
-            ) { song ->
-                TabletSongRow(
-                    title = song.title,
-                    artist = song.artist,
-                    onRowClick = {
-                        viewModel.playTrack(song)
-                        onOpenPlayer()
-                    },
-                    onMoreClick = { menuSongId = song.id }
-                )
+        val retryBrowse: () -> Unit = {
+            if (searchQuery.isNotBlank()) {
+                viewModel.onSearchQueryChange(searchQuery)
+            } else {
+                viewModel.retryLoadLibrary()
             }
+        }
+        when {
+            ui.isLoading && ui.songsList.isEmpty() ->
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+                        .navigationBarsPadding(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+
+            ui.songsList.isEmpty() ->
+                NoInternetScreen(
+                    onRetry = retryBrowse,
+                    modifier = Modifier
+                        .weight(1f)
+                        .navigationBarsPadding(),
+                )
+
+            else ->
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .navigationBarsPadding(),
+                    contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 24.dp)
+                ) {
+                    items(
+                        items = ui.songsList,
+                        key = { it.id }
+                    ) { song ->
+                        TabletSongRow(
+                            title = song.title,
+                            artist = song.artist,
+                            onRowClick = {
+                                viewModel.playTrack(song)
+                                onOpenPlayer()
+                            },
+                            onMoreClick = { menuSongId = song.id }
+                        )
+                    }
+                }
         }
     }
 
