@@ -1,6 +1,7 @@
 package dev.luanramos.custommusicapp.data.player
 
 import android.content.Context
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import androidx.media3.common.MediaItem
@@ -8,9 +9,12 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.luanramos.custommusicapp.R
+import dev.luanramos.custommusicapp.data.util.checkInternetConnection
 import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import dev.luanramos.custommusicapp.domain.TrackPlaybackState
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +24,7 @@ import kotlinx.coroutines.flow.update
 
 @Singleton
 class ExoTrackPlaybackController @Inject constructor(
-    @ApplicationContext context: Context
+    @ApplicationContext context: Context,
 ) : TrackPlaybackController {
 
     private val appContext = context
@@ -93,6 +97,7 @@ class ExoTrackPlaybackController @Inject constructor(
                             isPlaying = false,
                             isBuffering = false,
                             errorMessage = error.message
+                                ?: appContext.getString(R.string.playback_error_no_playable_source)
                         )
                     }
                 }
@@ -109,17 +114,39 @@ class ExoTrackPlaybackController @Inject constructor(
         progressHandler.removeCallbacks(progressTick)
     }
 
+    private fun remoteUri(track: Music): Uri? {
+        val url = track.songUrl?.takeIf { it.isNotBlank() } ?: return null
+        return Uri.parse(url)
+    }
+
+    private fun localUri(track: Music): Uri? {
+        val path = track.localAudioPath?.takeIf { it.isNotBlank() } ?: return null
+        val file = File(path)
+        return if (file.isFile && file.length() > 0L) Uri.fromFile(file) else null
+    }
+
+    /**
+     * When online, prefer streaming [Music.songUrl]; otherwise use a valid local file.
+     * When offline, only a non-empty local file can be played.
+     */
+    private fun resolvePlaybackUri(track: Music): Uri? =
+        if (checkInternetConnection(appContext)) {
+            remoteUri(track) ?: localUri(track)
+        } else {
+            localUri(track)
+        }
+
     override fun play(track: Music) {
         stopProgressUpdates()
-        val url = track.songUrl
-        if (url == null) {
+        val uri = resolvePlaybackUri(track)
+        if (uri == null) {
             player.stop()
             player.clearMediaItems()
             _state.value = TrackPlaybackState(
                 currentTrack = track,
                 isPlaying = false,
                 isBuffering = false,
-                errorMessage = null,
+                errorMessage = appContext.getString(R.string.playback_error_no_playable_source),
                 positionMs = 0L,
                 durationMs = 0L
             )
@@ -135,7 +162,7 @@ class ExoTrackPlaybackController @Inject constructor(
                 durationMs = 0L
             )
         }
-        player.setMediaItem(MediaItem.fromUri(url))
+        player.setMediaItem(MediaItem.fromUri(uri))
         player.prepare()
         player.play()
     }

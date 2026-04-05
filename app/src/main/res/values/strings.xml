@@ -21,6 +21,7 @@
     <string name="player_pause">Pause</string>
     <string name="player_buffering">Loading…</string>
     <string name="player_no_track">Choose a song from the library to play.</string>
+    <string name="playback_error_no_playable_source">No playable audio is available for this track. Connect to the internet or use a downloaded copy.</string>
     <string name="player_skip_previous">Skip to previous</string>
     <string name="player_skip_next">Skip to next</string>
     <string name="player_repeat">Repeat</string>
