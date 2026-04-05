@@ -100,6 +100,16 @@ fun TabletPlayerScreen(
                     .padding(top = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                Spacer(modifier = Modifier.weight(0.5f))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AlbumArtPlaceholder(size = 286.dp, cornerDp = 16.dp)
+                }
+                Spacer(modifier = Modifier.weight(0.5f))
                 if (track == null) {
                     Text(
                         text = stringResource(R.string.player_no_track),
@@ -168,17 +178,6 @@ fun TabletPlayerScreen(
                         onSkipNext = { playback.skipToNext() },
                         onRepeatToggle = { repeatOn = !repeatOn }
                     )
-                }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AlbumArtPlaceholder(size = 286.dp, cornerDp = 16.dp)
                 }
             }
         }
