@@ -1,6 +1,7 @@
 package dev.luanramos.custommusicapp.ui.util
 
 import android.app.Activity
+import android.app.UiModeManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
@@ -35,6 +36,9 @@ import androidx.window.layout.WindowInfoTracker
  * * **Foldable** — hinge sensor and/or a [FoldingFeature] intersecting the current window.
  * * **Android Auto** — [CarConnection] projection from the phone to the car UI.
  * * **Embedded automotive** — app running as an Android Automotive / embedded car app host.
+ * * **Car UI mode** — [Configuration.UI_MODE_TYPE_CAR] / [UiModeManager] / [PackageManager.FEATURE_AUTOMOTIVE].
+ *   Head units and some DHU sessions are wide (tablet-sized) but never report [CarConnection] projection;
+ *   this flag forces the car experience so we do not pick [DeviceFormFactor.Tablet] by width alone.
  */
 data class DeviceAdaptationState(
     val isSmartwatch: Boolean,
@@ -42,6 +46,7 @@ data class DeviceAdaptationState(
     val isFoldableWindowLayout: Boolean,
     val hasFoldableHardware: Boolean,
     val androidAutoConnection: AndroidAutoConnection,
+    val isCarUiEnvironment: Boolean,
 ) {
     enum class AndroidAutoConnection {
         None,
@@ -58,19 +63,19 @@ data class DeviceAdaptationState(
         get() = androidAutoConnection == AndroidAutoConnection.EmbeddedAutomotive
 
     val isAnyCarExperience: Boolean
-        get() = androidAutoConnection != AndroidAutoConnection.None
+        get() = androidAutoConnection != AndroidAutoConnection.None || isCarUiEnvironment
 
     /**
      * Typical handset bucket: not watch, not tablet-width window, not car session from [androidAutoConnection].
      */
     val isSmartphoneHandset: Boolean
-        get() = !isSmartwatch && !isTabletSizedWindow && androidAutoConnection == AndroidAutoConnection.None
+        get() = !isSmartwatch && !isAnyCarExperience && !isTabletSizedWindow
 
     /**
      * Prefer tablet-style chrome (side rails, grid density): wide window on a non-watch device.
      */
     val isTabletExperience: Boolean
-        get() = !isSmartwatch && isTabletSizedWindow
+        get() = !isSmartwatch && !isAnyCarExperience && isTabletSizedWindow
 
     /**
      * Foldable hardware or current window is fold-aware (hinge in layout).
@@ -120,6 +125,28 @@ fun Context.reportsFoldableHingeSensor(): Boolean =
         packageManager.hasSystemFeature(PackageManager.FEATURE_SENSOR_HINGE_ANGLE)
 
 /**
+ * Car / automotive host or car daynight UI — not the same as [CarConnection] projection, which is
+ * often absent on AAOS head units and some DHU runs despite a wide display.
+ */
+fun Context.isCarUiEnvironment(configuration: Configuration): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
+        if (uiModeManager?.currentModeType == Configuration.UI_MODE_TYPE_CAR) {
+            return true
+        }
+    }
+    val uiType = configuration.uiMode and Configuration.UI_MODE_TYPE_MASK
+    if (uiType == Configuration.UI_MODE_TYPE_CAR) {
+        return true
+    }
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)
+    } else {
+        false
+    }
+}
+
+/**
  * Non-Compose snapshot using current configuration only (no fold posture / no Android Auto).
  * For full signals use [rememberDeviceAdaptationState].
  */
@@ -130,6 +157,7 @@ fun Context.deviceAdaptationStatic(configuration: Configuration): DeviceAdaptati
         isFoldableWindowLayout = false,
         hasFoldableHardware = reportsFoldableHingeSensor(),
         androidAutoConnection = DeviceAdaptationState.AndroidAutoConnection.None,
+        isCarUiEnvironment = isCarUiEnvironment(configuration),
     )
 
 // Older androidx.car:app versions omit CONNECTION_TYPE_EMBEDDED; values match Car App API.
@@ -158,6 +186,7 @@ fun rememberDeviceAdaptationState(): DeviceAdaptationState {
     val isSmartwatch = remember(context) { context.isWearOsDevice() }
     val isTabletSized = remember(configuration) { configuration.isTabletSizedWindow() }
     val hasFoldableHw = remember(context) { context.reportsFoldableHingeSensor() }
+    val isCarUi = remember(configuration, context) { context.isCarUiEnvironment(configuration) }
 
     var foldInWindow by remember { mutableStateOf(false) }
     LaunchedEffect(activity, lifecycleOwner) {
@@ -190,6 +219,7 @@ fun rememberDeviceAdaptationState(): DeviceAdaptationState {
         isFoldableWindowLayout = foldInWindow,
         hasFoldableHardware = hasFoldableHw,
         androidAutoConnection = carMode,
+        isCarUiEnvironment = isCarUi,
     )
 }
 

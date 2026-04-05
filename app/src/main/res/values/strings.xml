@@ -38,4 +38,10 @@
     <string name="device_form_factor_smartwatch">Smartwatch</string>
     <string name="device_ui_pending_message">UI for this device type is not implemented yet (%1$s).</string>
 
+    <!-- Android Auto -->
+    <string name="car_browse_title">Music</string>
+    <string name="car_destination_music">Music</string>
+    <string name="car_destination_album">Album</string>
+    <string name="car_now_playing_indicator">Now playing</string>
+
 </resources>

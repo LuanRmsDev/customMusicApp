@@ -21,7 +21,7 @@ internal val libraryBackStackSaver =
     )
 
 @Composable
-fun rememberLibraryBackStack(): SnapshotStateList<LibraryDestination> =
-    rememberSaveable(saver = libraryBackStackSaver) {
+fun rememberLibraryBackStack(saveKey: String = "library_nav_default"): SnapshotStateList<LibraryDestination> =
+    rememberSaveable(saveKey, saver = libraryBackStackSaver) {
         mutableStateListOf(LibraryDestination.LibraryScreen)
     }

@@ -6,3 +6,7 @@ fun formatPlaybackTimeMs(ms: Long): String {
     val s = totalSec % 60L
     return "$m:${s.toString().padStart(2, '0')}"
 }
+
+/** Android Auto style elapsed / duration, e.g. `1:19/3:26`. */
+fun formatPlaybackElapsedSlashTotal(positionMs: Long, durationMs: Long): String =
+    "${formatPlaybackTimeMs(positionMs)}/${formatPlaybackTimeMs(durationMs)}"
