@@ -5,7 +5,7 @@ import android.net.Uri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.luanramos.custommusicapp.data.local.db.MusicLibraryDao
 import dev.luanramos.custommusicapp.data.local.db.entity.TrackEntity
-import dev.luanramos.custommusicapp.domain.Music
+import dev.luanramos.custommusicapp.domain.model.Music
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject

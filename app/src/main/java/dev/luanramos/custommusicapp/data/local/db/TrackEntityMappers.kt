@@ -1,8 +1,8 @@
 package dev.luanramos.custommusicapp.data.local.db
 
 import dev.luanramos.custommusicapp.data.local.db.entity.TrackEntity
-import dev.luanramos.custommusicapp.domain.Music
-import dev.luanramos.custommusicapp.domain.MusicArtwork
+import dev.luanramos.custommusicapp.domain.model.Music
+import dev.luanramos.custommusicapp.domain.model.MusicArtwork
 
 /** Row for remote metadata merge; [playCount] / [lastPlayedAt] are overwritten when preserving stats. */
 fun Music.toRemoteTrackEntity(): TrackEntity =

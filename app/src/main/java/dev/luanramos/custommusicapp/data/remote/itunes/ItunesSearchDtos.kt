@@ -1,8 +1,8 @@
 package dev.luanramos.custommusicapp.data.remote.itunes
 
 import com.google.gson.annotations.SerializedName
-import dev.luanramos.custommusicapp.domain.Music
-import dev.luanramos.custommusicapp.domain.MusicArtwork
+import dev.luanramos.custommusicapp.domain.model.Music
+import dev.luanramos.custommusicapp.domain.model.MusicArtwork
 
 /**
  * Top-level JSON from `GET https://itunes.apple.com/search`.

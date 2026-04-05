@@ -1,4 +1,4 @@
-package dev.luanramos.custommusicapp.domain
+package dev.luanramos.custommusicapp.domain.model
 
 /**
  * Album / track artwork at multiple resolutions (iTunes Search `artworkUrl30` … `artworkUrl600`).

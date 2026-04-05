@@ -1,5 +1,6 @@
 package dev.luanramos.custommusicapp.domain
 
+import dev.luanramos.custommusicapp.domain.model.Music
 import kotlinx.coroutines.flow.StateFlow
 
 data class TrackPlaybackState(

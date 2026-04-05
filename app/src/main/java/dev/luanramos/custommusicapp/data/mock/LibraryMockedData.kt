@@ -1,6 +1,6 @@
 package dev.luanramos.custommusicapp.data.mock
 
-import dev.luanramos.custommusicapp.domain.Music
+import dev.luanramos.custommusicapp.domain.model.Music
 
 object LibraryMockedData {
 

@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.luanramos.custommusicapp.R
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
-import dev.luanramos.custommusicapp.domain.Music
+import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.ui.components.CarSongRow
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 

@@ -8,7 +8,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import dev.luanramos.custommusicapp.data.local.db.entity.CatalogListEntryEntity
 import dev.luanramos.custommusicapp.data.local.db.entity.TrackEntity
-import dev.luanramos.custommusicapp.domain.Music
+import dev.luanramos.custommusicapp.domain.model.Music
 
 @Dao
 interface MusicLibraryDao {

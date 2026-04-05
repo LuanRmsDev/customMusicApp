@@ -1,7 +1,7 @@
 package dev.luanramos.custommusicapp.data.local
 
 import dev.luanramos.custommusicapp.data.local.db.MusicLibraryDao
-import dev.luanramos.custommusicapp.domain.Music
+import dev.luanramos.custommusicapp.domain.model.Music
 import javax.inject.Inject
 import javax.inject.Singleton
 

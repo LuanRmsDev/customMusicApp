@@ -1,4 +1,4 @@
-package dev.luanramos.custommusicapp.domain
+package dev.luanramos.custommusicapp.domain.model
 
 data class Music(
     val id: String,
