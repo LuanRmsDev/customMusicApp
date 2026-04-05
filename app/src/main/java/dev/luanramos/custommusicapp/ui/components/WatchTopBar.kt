@@ -1,4 +1,4 @@
-package dev.luanramos.custommusicapp.ui.watch
+package dev.luanramos.custommusicapp.ui.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,9 +26,9 @@ import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 @Composable
 fun WatchTopBar(
     title: String,
-    onBack: () -> Unit = {},
     modifier: Modifier = Modifier,
-    showBack: Boolean = true
+    showBack: Boolean = true,
+    onBack: () -> Unit = {},
 ) {
     Row(
         modifier = modifier

@@ -30,6 +30,7 @@ import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.Music
 import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
+import dev.luanramos.custommusicapp.ui.components.WatchTopBar
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable

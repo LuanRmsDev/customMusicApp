@@ -29,6 +29,7 @@ import dev.luanramos.custommusicapp.domain.Music
 import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import dev.luanramos.custommusicapp.ui.components.LibrarySearchField
 import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
+import dev.luanramos.custommusicapp.ui.components.TabletSongRow
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.domain.Music
 import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
+import dev.luanramos.custommusicapp.ui.components.WatchTopBar
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable

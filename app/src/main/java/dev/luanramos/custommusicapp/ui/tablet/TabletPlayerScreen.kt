@@ -51,6 +51,7 @@ import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
 import dev.luanramos.custommusicapp.ui.components.PlayerScreenTopBar
 import dev.luanramos.custommusicapp.ui.components.PlayerSeekBar
 import dev.luanramos.custommusicapp.ui.components.TabletPlayerTransportRow
+import dev.luanramos.custommusicapp.ui.components.TabletQueueSongRow
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable

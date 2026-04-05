@@ -28,6 +28,7 @@ import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.domain.Music
 import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
 import dev.luanramos.custommusicapp.ui.components.AlbumDisplayTopBar
+import dev.luanramos.custommusicapp.ui.components.TabletSongRow
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable
