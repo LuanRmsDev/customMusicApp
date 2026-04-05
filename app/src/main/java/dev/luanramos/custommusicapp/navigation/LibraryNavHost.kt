@@ -8,8 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
+import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.presentation.MusicPlaybackViewModel
-import dev.luanramos.custommusicapp.ui.library.AlbumDetailsScreen
+import dev.luanramos.custommusicapp.ui.library.AlbumDisplayScreen
 import dev.luanramos.custommusicapp.ui.library.LibraryPlayerScreen
 import dev.luanramos.custommusicapp.ui.library.LibraryScreen
 
@@ -34,7 +35,7 @@ fun LibraryNavHost(modifier: Modifier = Modifier) {
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },
                         onLibraryMenuViewAlbum = { _ ->
-                            backStack.add(LibraryDestination.AlbumDetailsScreen)
+                            backStack.add(LibraryDestination.AlbumDisplayScreen)
                         },
                         modifier = Modifier.fillMaxSize()
                     )
@@ -44,16 +45,23 @@ fun LibraryNavHost(modifier: Modifier = Modifier) {
                     LibraryPlayerScreen(
                         playback = playback,
                         onPlayerMenuViewAlbum = {
-                            backStack.add(LibraryDestination.AlbumDetailsScreen)
+                            backStack.add(LibraryDestination.AlbumDisplayScreen)
                         },
                         onBack = { backStack.removeLastOrNull() },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
 
-                is LibraryDestination.AlbumDetailsScreen -> NavEntry(key) {
-                    AlbumDetailsScreen(
+                is LibraryDestination.AlbumDisplayScreen -> NavEntry(key) {
+                    AlbumDisplayScreen(
+                        albumTitle = LibraryMockedData.sampleDisplayAlbumTitle,
+                        artistName = LibraryMockedData.sampleDisplayAlbumArtist,
+                        tracks = LibraryMockedData.sampleDisplayAlbumTracks,
                         onBack = { backStack.removeLastOrNull() },
+                        onTrackClick = { song ->
+                            playback.play(song)
+                            backStack.add(LibraryDestination.LibraryPlayerScreen)
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
