@@ -8,8 +8,8 @@ import dev.luanramos.custommusicapp.ui.util.primaryFormFactor
 
 /**
  * Chooses the navigation graph from [LocalDeviceAdaptationState].
- * [DeviceFormFactor.Smartphone] and [DeviceFormFactor.AndroidAuto] use dedicated hosts; tablet and
- * watch still use [PendingFormFactorRoot] until implemented.
+ * [DeviceFormFactor.Smartphone], [DeviceFormFactor.AndroidAuto], and [DeviceFormFactor.Tablet] use
+ * dedicated hosts; watch still uses [PendingFormFactorRoot] until implemented.
  */
 @Composable
 fun AppNavHost(modifier: Modifier = Modifier) {
@@ -20,7 +20,9 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         DeviceFormFactor.AndroidAuto ->
             CarLibraryNavHost(modifier = modifier)
 
-        DeviceFormFactor.Tablet,
+        DeviceFormFactor.Tablet ->
+            TabletLibraryNavHost(modifier = modifier)
+
         DeviceFormFactor.Smartwatch ->
             PendingFormFactorRoot(formFactor = formFactor, modifier = modifier)
     }

@@ -25,6 +25,7 @@
     <string name="player_skip_next">Skip to next</string>
     <string name="player_repeat">Repeat</string>
     <string name="player_open_menu">Open menu</string>
+    <string name="tablet_player_queue_icon_description">Song queue</string>
     <string name="player_action_view_album">View album</string>
 
     <!-- Shared actions -->
