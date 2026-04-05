@@ -7,14 +7,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
-import dev.luanramos.custommusicapp.presentation.MusicPlaybackViewModel
+import dev.luanramos.custommusicapp.presentation.MusicViewModel
 import dev.luanramos.custommusicapp.ui.smartphone.AlbumDisplayScreen
 import dev.luanramos.custommusicapp.ui.smartphone.LibraryPlayerScreen
 import dev.luanramos.custommusicapp.ui.smartphone.LibraryScreen
 
 @Composable
 fun SmartphoneLibraryNavHost(modifier: Modifier = Modifier) {
-    val playbackViewModel: MusicPlaybackViewModel = hiltViewModel()
+    val playbackViewModel: MusicViewModel = hiltViewModel()
     val playback = playbackViewModel.playback
     val backStack = rememberLibraryBackStack(saveKey = "smartphone_nav")
 

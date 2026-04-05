@@ -9,14 +9,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
-import dev.luanramos.custommusicapp.presentation.MusicPlaybackViewModel
+import dev.luanramos.custommusicapp.presentation.MusicViewModel
 import dev.luanramos.custommusicapp.ui.androidauto.CarAlbumListScreen
 import dev.luanramos.custommusicapp.ui.androidauto.CarBrowseScreen
 import dev.luanramos.custommusicapp.ui.androidauto.CarPlayerScreen
 
 @Composable
 fun CarLibraryNavHost(modifier: Modifier = Modifier) {
-    val playbackViewModel: MusicPlaybackViewModel = hiltViewModel()
+    val playbackViewModel: MusicViewModel = hiltViewModel()
     val playback = playbackViewModel.playback
     val playbackState by playback.state.collectAsStateWithLifecycle()
     val backStack = rememberLibraryBackStack(saveKey = "android_auto_nav")

@@ -6,7 +6,7 @@ import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import javax.inject.Inject
 
 @HiltViewModel
-class MusicPlaybackViewModel @Inject constructor(
+class MusicViewModel @Inject constructor(
     val playback: TrackPlaybackController
 ) : ViewModel() {
 

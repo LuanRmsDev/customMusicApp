@@ -7,7 +7,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
-import dev.luanramos.custommusicapp.presentation.MusicPlaybackViewModel
+import dev.luanramos.custommusicapp.presentation.MusicViewModel
 import dev.luanramos.custommusicapp.ui.watch.WatchAlbumScreen
 import dev.luanramos.custommusicapp.ui.watch.WatchLibraryScreen
 import dev.luanramos.custommusicapp.ui.watch.WatchMainNavScreen
@@ -19,7 +19,7 @@ import dev.luanramos.custommusicapp.ui.watch.WatchPlayerScreen
  */
 @Composable
 fun WatchLibraryNavHost(modifier: Modifier = Modifier) {
-    val playbackViewModel: MusicPlaybackViewModel = hiltViewModel()
+    val playbackViewModel: MusicViewModel = hiltViewModel()
     val playback = playbackViewModel.playback
     val backStack = rememberLibraryBackStack(saveKey = "smartwatch_nav")
 
