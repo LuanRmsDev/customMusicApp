@@ -17,6 +17,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dev.luanramos.custommusicapp.navigation.LibraryNavHost
 import dev.luanramos.custommusicapp.ui.splash.SplashContent
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
+import dev.luanramos.custommusicapp.ui.util.ProvideDeviceAdaptationState
 import kotlinx.coroutines.delay
 
 private const val SplashVisibleMillis = 2_000L
@@ -29,21 +30,23 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CustomMusicAppTheme {
-                var showSplash by rememberSaveable { mutableStateOf(true) }
-                LaunchedEffect(Unit) {
-                    if (!showSplash) return@LaunchedEffect
-                    delay(SplashVisibleMillis)
-                    showSplash = false
-                }
-                Crossfade(
-                    targetState = showSplash,
-                    modifier = Modifier.fillMaxSize(),
-                    label = "splash"
-                ) { splash ->
-                    if (splash) {
-                        SplashContent(modifier = Modifier.fillMaxSize())
-                    } else {
-                        LibraryNavHost(modifier = Modifier.fillMaxSize())
+                ProvideDeviceAdaptationState {
+                    var showSplash by rememberSaveable { mutableStateOf(true) }
+                    LaunchedEffect(Unit) {
+                        if (!showSplash) return@LaunchedEffect
+                        delay(SplashVisibleMillis)
+                        showSplash = false
+                    }
+                    Crossfade(
+                        targetState = showSplash,
+                        modifier = Modifier.fillMaxSize(),
+                        label = "splash"
+                    ) { splash ->
+                        if (splash) {
+                            SplashContent(modifier = Modifier.fillMaxSize())
+                        } else {
+                            LibraryNavHost(modifier = Modifier.fillMaxSize())
+                        }
                     }
                 }
             }
