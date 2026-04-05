@@ -1,4 +1,4 @@
-package dev.luanramos.custommusicapp.ui.library
+package dev.luanramos.custommusicapp.ui.smartphone
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically

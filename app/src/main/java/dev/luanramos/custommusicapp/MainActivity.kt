@@ -2,7 +2,6 @@ package dev.luanramos.custommusicapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import dagger.hilt.android.AndroidEntryPoint
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.Crossfade
@@ -14,7 +13,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import dev.luanramos.custommusicapp.navigation.LibraryNavHost
+import dagger.hilt.android.AndroidEntryPoint
+import dev.luanramos.custommusicapp.navigation.AppNavHost
 import dev.luanramos.custommusicapp.ui.splash.SplashContent
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 import dev.luanramos.custommusicapp.ui.util.ProvideDeviceAdaptationState
@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                         if (splash) {
                             SplashContent(modifier = Modifier.fillMaxSize())
                         } else {
-                            LibraryNavHost(modifier = Modifier.fillMaxSize())
+                            AppNavHost(modifier = Modifier.fillMaxSize())
                         }
                     }
                 }

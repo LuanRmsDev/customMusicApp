@@ -31,4 +31,11 @@
     <string name="action_open_player">Open player</string>
     <string name="action_back">Back</string>
 
+    <!-- Device form factors (for adaptive root / placeholders) -->
+    <string name="device_form_factor_smartphone">Smartphone</string>
+    <string name="device_form_factor_tablet">Tablet</string>
+    <string name="device_form_factor_android_auto">Android Auto</string>
+    <string name="device_form_factor_smartwatch">Smartwatch</string>
+    <string name="device_ui_pending_message">UI for this device type is not implemented yet (%1$s).</string>
+
 </resources>

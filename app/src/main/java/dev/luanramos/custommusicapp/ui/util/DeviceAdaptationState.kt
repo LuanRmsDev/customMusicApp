@@ -15,13 +15,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
@@ -78,6 +78,22 @@ data class DeviceAdaptationState(
     val isFoldableExperience: Boolean
         get() = hasFoldableHardware || isFoldableWindowLayout
 }
+
+/** Primary UI bucket for root navigation (first match wins). */
+enum class DeviceFormFactor {
+    Smartwatch,
+    AndroidAuto,
+    Tablet,
+    Smartphone,
+}
+
+fun DeviceAdaptationState.primaryFormFactor(): DeviceFormFactor =
+    when {
+        isSmartwatch -> DeviceFormFactor.Smartwatch
+        isAnyCarExperience -> DeviceFormFactor.AndroidAuto
+        isTabletExperience -> DeviceFormFactor.Tablet
+        else -> DeviceFormFactor.Smartphone
+    }
 
 fun Context.findActivity(): Activity? {
     var ctx: Context = this

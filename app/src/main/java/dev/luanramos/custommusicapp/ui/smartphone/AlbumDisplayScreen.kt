@@ -1,4 +1,4 @@
-package dev.luanramos.custommusicapp.ui.library
+package dev.luanramos.custommusicapp.ui.smartphone
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

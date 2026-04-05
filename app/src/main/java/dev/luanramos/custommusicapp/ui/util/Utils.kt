@@ -1,4 +1,4 @@
-package dev.luanramos.custommusicapp.ui.utils
+package dev.luanramos.custommusicapp.ui.util
 
 fun formatPlaybackTimeMs(ms: Long): String {
     val totalSec = (ms / 1000L).coerceAtLeast(0L)

@@ -16,7 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
-import dev.luanramos.custommusicapp.ui.utils.formatPlaybackTimeMs
+import dev.luanramos.custommusicapp.ui.util.formatPlaybackTimeMs
 
 @Composable
 fun PlayerSeekBar(
