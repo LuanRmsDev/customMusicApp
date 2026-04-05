@@ -6,4 +6,8 @@ data class Music(
     val artist: String,
     val songUrl: String? = null,
     val artwork: MusicArtwork? = null,
+    val playCount: Int = 0,
+    val lastPlayedAt: Long? = null,
+    val localAudioPath: String? = null,
+    val localArtworkPath: String? = null,
 )
