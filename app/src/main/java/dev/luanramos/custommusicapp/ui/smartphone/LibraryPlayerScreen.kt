@@ -26,7 +26,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.luanramos.custommusicapp.R
 import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
-import dev.luanramos.custommusicapp.domain.TrackPlaybackController
+import dev.luanramos.custommusicapp.presentation.MusicViewModel
+import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
 import dev.luanramos.custommusicapp.ui.components.PlayerAlbumArtSection
 import dev.luanramos.custommusicapp.ui.components.PlayerBufferingIndicator
 import dev.luanramos.custommusicapp.ui.components.PlayerErrorMessage
@@ -36,18 +37,20 @@ import dev.luanramos.custommusicapp.ui.components.PlayerSeekBar
 import dev.luanramos.custommusicapp.ui.components.PlayerTrackHeader
 import dev.luanramos.custommusicapp.ui.components.PlayerTransportControls
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
+import dev.luanramos.custommusicapp.ui.util.canPlayAudio
 import dev.luanramos.custommusicapp.ui.util.isCompactPhoneLandscape
 
 @Composable
 fun LibraryPlayerScreen(
-    playback: TrackPlaybackController,
+    viewModel: MusicViewModel,
     onPlayerMenuViewAlbum: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state by playback.state.collectAsStateWithLifecycle()
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val state = ui.playbackState
     val track = state.currentTrack
-    val canPlay = track != null && track.songUrl != null
+    val canPlay = track.canPlayAudio()
     val durationMs = state.durationMs
     val positionMs = state.positionMs
 
@@ -117,7 +120,7 @@ fun LibraryPlayerScreen(
                             durationMs = durationMs,
                             onSeekToFraction = { v ->
                                 if (durationMs > 0) {
-                                    playback.seekTo((v * durationMs).toLong())
+                                    viewModel.seekTo((v * durationMs).toLong())
                                 }
                             },
                             enabled = canPlay && durationMs > 0 && !state.isBuffering
@@ -133,10 +136,10 @@ fun LibraryPlayerScreen(
                             isBuffering = state.isBuffering,
                             repeatOn = repeatOn,
                             onPlayPause = {
-                                if (state.isPlaying) playback.pause() else playback.resume()
+                                if (state.isPlaying) viewModel.pause() else viewModel.resume()
                             },
-                            onSkipPrevious = { playback.skipToPrevious() },
-                            onSkipNext = { playback.skipToNext() },
+                            onSkipPrevious = { viewModel.skipToPrevious() },
+                            onSkipNext = { viewModel.skipToNext() },
                             onRepeatToggle = { repeatOn = !repeatOn }
                         )
                     }
@@ -158,9 +161,10 @@ fun LibraryPlayerScreen(
 @Preview(showBackground = true, showSystemUi = true, backgroundColor = 0xFF000000)
 @Composable
 private fun LibraryPlayerScreenPreview() {
+    val vm = MusicViewModel(PreviewMusicRepository, FakeTrackPlaybackController)
     LaunchedEffect(Unit) {
         FakeTrackPlaybackController.stop()
-        FakeTrackPlaybackController.play(
+        vm.playTrack(
             Music(
                 id = "preview",
                 title = "Get Lucky",
@@ -171,7 +175,7 @@ private fun LibraryPlayerScreenPreview() {
     }
     CustomMusicAppTheme {
         LibraryPlayerScreen(
-            playback = FakeTrackPlaybackController,
+            viewModel = vm,
             onPlayerMenuViewAlbum = {},
             onBack = {}
         )

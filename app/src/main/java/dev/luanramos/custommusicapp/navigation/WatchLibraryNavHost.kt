@@ -19,8 +19,7 @@ import dev.luanramos.custommusicapp.ui.watch.WatchPlayerScreen
  */
 @Composable
 fun WatchLibraryNavHost(modifier: Modifier = Modifier) {
-    val playbackViewModel: MusicViewModel = hiltViewModel()
-    val playback = playbackViewModel.playback
+    val musicViewModel: MusicViewModel = hiltViewModel()
     val backStack = rememberLibraryBackStack(saveKey = "smartwatch_nav")
 
     fun popToMusicHub() {
@@ -51,7 +50,7 @@ fun WatchLibraryNavHost(modifier: Modifier = Modifier) {
 
                 is LibraryDestination.WatchSongsList -> NavEntry(key) {
                     WatchLibraryScreen(
-                        playback = playback,
+                        viewModel = musicViewModel,
                         onOpenPlayer = {
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },
@@ -62,7 +61,7 @@ fun WatchLibraryNavHost(modifier: Modifier = Modifier) {
 
                 is LibraryDestination.LibraryPlayerScreen -> NavEntry(key) {
                     WatchPlayerScreen(
-                        playback = playback,
+                        viewModel = musicViewModel,
                         onPlayerMenuViewAlbum = {
                             backStack.add(LibraryDestination.AlbumDisplayScreen)
                         },
@@ -78,7 +77,7 @@ fun WatchLibraryNavHost(modifier: Modifier = Modifier) {
                         tracks = LibraryMockedData.sampleDisplayAlbumTracks,
                         onBack = { backStack.removeLastOrNull() },
                         onTrackClick = { song ->
-                            playback.play(song)
+                            musicViewModel.playTrack(song)
                             popToMusicHub()
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },

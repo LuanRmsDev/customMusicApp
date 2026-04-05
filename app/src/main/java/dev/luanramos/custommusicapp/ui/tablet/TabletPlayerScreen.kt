@@ -40,10 +40,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.luanramos.custommusicapp.R
-import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
-import dev.luanramos.custommusicapp.domain.TrackPlaybackController
+import dev.luanramos.custommusicapp.presentation.MusicViewModel
+import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
 import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
 import dev.luanramos.custommusicapp.ui.components.PlayerBufferingIndicator
 import dev.luanramos.custommusicapp.ui.components.PlayerErrorMessage
@@ -53,17 +53,19 @@ import dev.luanramos.custommusicapp.ui.components.PlayerSeekBar
 import dev.luanramos.custommusicapp.ui.components.TabletPlayerTransportRow
 import dev.luanramos.custommusicapp.ui.components.TabletQueueSongRow
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
+import dev.luanramos.custommusicapp.ui.util.canPlayAudio
 
 @Composable
 fun TabletPlayerScreen(
-    playback: TrackPlaybackController,
+    viewModel: MusicViewModel,
     onPlayerMenuViewAlbum: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state by playback.state.collectAsStateWithLifecycle()
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val state = ui.playbackState
     val track = state.currentTrack
-    val canPlay = track != null && track.songUrl != null
+    val canPlay = track.canPlayAudio()
     val durationMs = state.durationMs
     val positionMs = state.positionMs
 
@@ -156,7 +158,7 @@ fun TabletPlayerScreen(
                         durationMs = durationMs,
                         onSeekToFraction = { v ->
                             if (durationMs > 0) {
-                                playback.seekTo((v * durationMs).toLong())
+                                viewModel.seekTo((v * durationMs).toLong())
                             }
                         },
                         enabled = canPlay && durationMs > 0 && !state.isBuffering
@@ -172,10 +174,10 @@ fun TabletPlayerScreen(
                         isBuffering = state.isBuffering,
                         repeatOn = repeatOn,
                         onPlayPause = {
-                            if (state.isPlaying) playback.pause() else playback.resume()
+                            if (state.isPlaying) viewModel.pause() else viewModel.resume()
                         },
-                        onSkipPrevious = { playback.skipToPrevious() },
-                        onSkipNext = { playback.skipToNext() },
+                        onSkipPrevious = { viewModel.skipToPrevious() },
+                        onSkipNext = { viewModel.skipToNext() },
                         onRepeatToggle = { repeatOn = !repeatOn }
                     )
                 }
@@ -208,14 +210,14 @@ fun TabletPlayerScreen(
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
                     items(
-                        items = LibraryMockedData.songs,
+                        items = ui.songsList,
                         key = { it.id }
                     ) { song ->
                         TabletQueueSongRow(
                             title = song.title,
                             artist = song.artist,
                             isCurrentTrack = song.id == state.currentTrack?.id,
-                            onClick = { playback.play(song) }
+                            onClick = { viewModel.playTrack(song) }
                         )
                     }
                 }
@@ -236,9 +238,10 @@ fun TabletPlayerScreen(
 @Preview(showBackground = true, backgroundColor = 0xFF000000, widthDp = 1194, heightDp = 834)
 @Composable
 private fun TabletPlayerScreenPreview() {
+    val vm = MusicViewModel(PreviewMusicRepository, FakeTrackPlaybackController)
     LaunchedEffect(Unit) {
         FakeTrackPlaybackController.stop()
-        FakeTrackPlaybackController.play(
+        vm.playTrack(
             Music(
                 id = "preview",
                 title = "Get Lucky",
@@ -249,7 +252,7 @@ private fun TabletPlayerScreenPreview() {
     }
     CustomMusicAppTheme {
         TabletPlayerScreen(
-            playback = FakeTrackPlaybackController,
+            viewModel = vm,
             onPlayerMenuViewAlbum = {},
             onBack = {}
         )

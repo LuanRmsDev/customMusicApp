@@ -8,7 +8,6 @@ import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.domain.repository.MusicRepository
 import javax.inject.Inject
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,24 +39,11 @@ class MusicViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                val popular = async { musicRepository.getPopularSongs(limit = BROWSE_PAGE_SIZE) }
-                val recent = async { musicRepository.getLastPlayedSongs(limit = RECENTLY_PLAYED_MAX) }
-                _uiState.update {
-                    it.copy(
-                        songsList = popular.await(),
-                        recentlyPlayedList = recent.await(),
-                    )
-                }
+                val songs = musicRepository.getPopularSongs(limit = BROWSE_PAGE_SIZE)
+                _uiState.update { it.copy(songsList = songs) }
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }
-        }
-    }
-
-    fun refreshRecentlyPlayed() {
-        viewModelScope.launch {
-            val list = musicRepository.getLastPlayedSongs(RECENTLY_PLAYED_MAX)
-            _uiState.update { it.copy(recentlyPlayedList = list) }
         }
     }
 
@@ -115,7 +101,6 @@ class MusicViewModel @Inject constructor(
     }
 
     companion object {
-        const val RECENTLY_PLAYED_MAX: Int = 20
         const val BROWSE_PAGE_SIZE: Int = 20
         private const val SEARCH_DEBOUNCE_MS: Long = 320L
     }

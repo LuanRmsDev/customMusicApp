@@ -38,7 +38,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.luanramos.custommusicapp.R
 import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
-import dev.luanramos.custommusicapp.domain.TrackPlaybackController
+import dev.luanramos.custommusicapp.presentation.MusicViewModel
+import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
 import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
 import dev.luanramos.custommusicapp.ui.components.CarPlayerTransportRow
 import dev.luanramos.custommusicapp.ui.components.PlayerBufferingIndicator
@@ -47,6 +48,7 @@ import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
 import dev.luanramos.custommusicapp.ui.components.PlayerSeekBar
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 import dev.luanramos.custommusicapp.ui.theme.greyArtist
+import dev.luanramos.custommusicapp.ui.util.canPlayAudio
 import dev.luanramos.custommusicapp.ui.util.formatPlaybackElapsedSlashTotal
 
 /**
@@ -54,14 +56,15 @@ import dev.luanramos.custommusicapp.ui.util.formatPlaybackElapsedSlashTotal
  */
 @Composable
 fun CarPlayerScreen(
-    playback: TrackPlaybackController,
+    viewModel: MusicViewModel,
     onBackToMusic: () -> Unit,
     onOpenAlbum: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state by playback.state.collectAsStateWithLifecycle()
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val state = ui.playbackState
     val track = state.currentTrack
-    val canPlay = track != null && track.songUrl != null
+    val canPlay = track.canPlayAudio()
     val durationMs = state.durationMs
     val positionMs = state.positionMs
 
@@ -195,7 +198,7 @@ fun CarPlayerScreen(
                         positionMs = positionMs,
                         durationMs = durationMs,
                         onSeekToFraction = { v ->
-                            if (durationMs > 0) playback.seekTo((v * durationMs).toLong())
+                            if (durationMs > 0) viewModel.seekTo((v * durationMs).toLong())
                         },
                         enabled = canPlay && durationMs > 0 && !state.isBuffering,
                         showTimeRow = false,
@@ -212,10 +215,10 @@ fun CarPlayerScreen(
                         isBuffering = state.isBuffering,
                         repeatOn = repeatOn,
                         onPlayPause = {
-                            if (state.isPlaying) playback.pause() else playback.resume()
+                            if (state.isPlaying) viewModel.pause() else viewModel.resume()
                         },
-                        onSkipPrevious = { playback.skipToPrevious() },
-                        onSkipNext = { playback.skipToNext() },
+                        onSkipPrevious = { viewModel.skipToPrevious() },
+                        onSkipNext = { viewModel.skipToNext() },
                         onRepeatToggle = { repeatOn = !repeatOn },
                         onMore = { showMenuSheet = true },
                         moreEnabled = true
@@ -241,9 +244,10 @@ fun CarPlayerScreen(
 @Preview(showBackground = true, backgroundColor = 0xFF000000, widthDp = 1280, heightDp = 720)
 @Composable
 private fun CarPlayerScreenPreview() {
+    val vm = MusicViewModel(PreviewMusicRepository, FakeTrackPlaybackController)
     LaunchedEffect(Unit) {
         FakeTrackPlaybackController.stop()
-        FakeTrackPlaybackController.play(
+        vm.playTrack(
             Music(
                 id = "preview",
                 title = "Perfect",
@@ -254,7 +258,7 @@ private fun CarPlayerScreenPreview() {
     }
     CustomMusicAppTheme {
         CarPlayerScreen(
-            playback = FakeTrackPlaybackController,
+            viewModel = vm,
             onBackToMusic = {},
             onOpenAlbum = {}
         )

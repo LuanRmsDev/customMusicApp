@@ -16,9 +16,8 @@ import dev.luanramos.custommusicapp.ui.androidauto.CarPlayerScreen
 
 @Composable
 fun CarLibraryNavHost(modifier: Modifier = Modifier) {
-    val playbackViewModel: MusicViewModel = hiltViewModel()
-    val playback = playbackViewModel.playback
-    val playbackState by playback.state.collectAsStateWithLifecycle()
+    val musicViewModel: MusicViewModel = hiltViewModel()
+    val ui by musicViewModel.uiState.collectAsStateWithLifecycle()
     val backStack = rememberLibraryBackStack(saveKey = "android_auto_nav")
 
     NavDisplay(
@@ -29,10 +28,10 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
                 is LibraryDestination.LibraryScreen,
                 is LibraryDestination.WatchSongsList -> NavEntry(key) {
                     CarBrowseScreen(
-                        songs = LibraryMockedData.songs,
-                        currentTrackId = playbackState.currentTrack?.id,
+                        songs = ui.songsList,
+                        currentTrackId = ui.playbackState.currentTrack?.id,
                         onSongClick = { song ->
-                            playback.play(song)
+                            musicViewModel.playTrack(song)
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },
                         modifier = Modifier.fillMaxSize()
@@ -41,7 +40,7 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
 
                 is LibraryDestination.LibraryPlayerScreen -> NavEntry(key) {
                     CarPlayerScreen(
-                        playback = playback,
+                        viewModel = musicViewModel,
                         onBackToMusic = { backStack.removeLastOrNull() },
                         onOpenAlbum = {
                             backStack.add(LibraryDestination.AlbumDisplayScreen)
@@ -54,10 +53,10 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
                     CarAlbumListScreen(
                         albumTitle = LibraryMockedData.sampleDisplayAlbumTitle,
                         tracks = LibraryMockedData.sampleDisplayAlbumTracks,
-                        currentTrackId = playbackState.currentTrack?.id,
+                        currentTrackId = ui.playbackState.currentTrack?.id,
                         onBack = { backStack.removeLastOrNull() },
                         onTrackClick = { song ->
-                            playback.play(song)
+                            musicViewModel.playTrack(song)
                             while (backStack.size > 1) {
                                 backStack.removeLastOrNull()
                             }

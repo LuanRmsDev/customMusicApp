@@ -29,11 +29,13 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.luanramos.custommusicapp.R
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
-import dev.luanramos.custommusicapp.domain.TrackPlaybackController
+import dev.luanramos.custommusicapp.presentation.MusicViewModel
+import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
 import dev.luanramos.custommusicapp.ui.components.LibrarySearchField
 import dev.luanramos.custommusicapp.ui.components.LibrarySongRow
 import dev.luanramos.custommusicapp.ui.components.LibraryTopBar
@@ -42,7 +44,7 @@ import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable
 fun LibraryScreen(
-    playback: TrackPlaybackController,
+    viewModel: MusicViewModel,
     onOpenPlayer: () -> Unit,
     onLibraryMenuViewAlbum: (Music) -> Unit,
     modifier: Modifier = Modifier
@@ -53,14 +55,17 @@ fun LibraryScreen(
     val searchFocusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
 
-    val songsById = remember {
-        (LibraryMockedData.songs + LibraryMockedData.sampleDisplayAlbumTracks)
-            .associateBy { it.id }
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val songsById = remember(ui.songsList, LibraryMockedData.sampleDisplayAlbumTracks) {
+        (ui.songsList + LibraryMockedData.sampleDisplayAlbumTracks).associateBy { it.id }
     }
     val menuSong = remember(menuSongId) { menuSongId?.let { songsById[it] } }
 
-    val songs = remember(searchQuery) {
-        filterSongs(LibraryMockedData.songs, searchQuery)
+    LaunchedEffect(searchQuery, isSearchActive) {
+        if (isSearchActive) {
+            viewModel.onSearchQueryChange(searchQuery)
+        }
     }
 
     LaunchedEffect(isSearchActive) {
@@ -68,7 +73,6 @@ fun LibraryScreen(
             searchFocusRequester.requestFocus()
         } else {
             keyboard?.hide()
-            searchQuery = ""
         }
     }
 
@@ -83,6 +87,11 @@ fun LibraryScreen(
                 modifier = Modifier.statusBarsPadding(),
                 isSearchActive = isSearchActive,
                 onSearchToggleClick = {
+                    if (isSearchActive) {
+                        searchQuery = ""
+                        viewModel.onSearchQueryChange("")
+                        keyboard?.hide()
+                    }
                     isSearchActive = !isSearchActive
                 }
             )
@@ -105,14 +114,14 @@ fun LibraryScreen(
                 contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 16.dp)
             ) {
                 items(
-                    items = songs,
+                    items = ui.songsList,
                     key = { it.id }
                 ) { song ->
                     LibrarySongRow(
                         title = song.title,
                         artist = song.artist,
                         onRowClick = {
-                            playback.play(song)
+                            viewModel.playTrack(song)
                             onOpenPlayer()
                         },
                         onMoreClick = { menuSongId = song.id }
@@ -132,21 +141,13 @@ fun LibraryScreen(
     }
 }
 
-private fun filterSongs(songs: List<Music>, query: String): List<Music> {
-    val q = query.trim()
-    if (q.isEmpty()) return songs
-    return songs.filter { song ->
-        song.title.contains(q, ignoreCase = true) ||
-            song.artist.contains(q, ignoreCase = true)
-    }
-}
-
 @Preview(showBackground = true, showSystemUi = true, backgroundColor = 0xFF000000)
 @Composable
 private fun LibraryScreenPreview() {
+    val vm = MusicViewModel(PreviewMusicRepository, FakeTrackPlaybackController)
     CustomMusicAppTheme {
         LibraryScreen(
-            playback = FakeTrackPlaybackController,
+            viewModel = vm,
             onOpenPlayer = {},
             onLibraryMenuViewAlbum = {}
         )

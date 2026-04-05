@@ -14,8 +14,7 @@ import dev.luanramos.custommusicapp.ui.smartphone.LibraryScreen
 
 @Composable
 fun SmartphoneLibraryNavHost(modifier: Modifier = Modifier) {
-    val playbackViewModel: MusicViewModel = hiltViewModel()
-    val playback = playbackViewModel.playback
+    val musicViewModel: MusicViewModel = hiltViewModel()
     val backStack = rememberLibraryBackStack(saveKey = "smartphone_nav")
 
     NavDisplay(
@@ -26,7 +25,7 @@ fun SmartphoneLibraryNavHost(modifier: Modifier = Modifier) {
                 is LibraryDestination.LibraryScreen,
                 is LibraryDestination.WatchSongsList -> NavEntry(key) {
                     LibraryScreen(
-                        playback = playback,
+                        viewModel = musicViewModel,
                         onOpenPlayer = {
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },
@@ -39,7 +38,7 @@ fun SmartphoneLibraryNavHost(modifier: Modifier = Modifier) {
 
                 is LibraryDestination.LibraryPlayerScreen -> NavEntry(key) {
                     LibraryPlayerScreen(
-                        playback = playback,
+                        viewModel = musicViewModel,
                         onPlayerMenuViewAlbum = {
                             backStack.add(LibraryDestination.AlbumDisplayScreen)
                         },
@@ -55,7 +54,7 @@ fun SmartphoneLibraryNavHost(modifier: Modifier = Modifier) {
                         tracks = LibraryMockedData.sampleDisplayAlbumTracks,
                         onBack = { backStack.removeLastOrNull() },
                         onTrackClick = { song ->
-                            playback.play(song)
+                            musicViewModel.playTrack(song)
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },
                         modifier = Modifier.fillMaxSize()

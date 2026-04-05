@@ -51,11 +51,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.luanramos.custommusicapp.R
 import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
-import dev.luanramos.custommusicapp.domain.TrackPlaybackController
+import dev.luanramos.custommusicapp.presentation.MusicViewModel
+import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
 import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
 import dev.luanramos.custommusicapp.ui.components.PlayerBufferingIndicator
 import dev.luanramos.custommusicapp.ui.components.PlayerErrorMessage
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
+import dev.luanramos.custommusicapp.ui.util.canPlayAudio
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.delay
@@ -70,14 +72,15 @@ import kotlinx.coroutines.isActive
  */
 @Composable
 fun WatchPlayerScreen(
-    playback: TrackPlaybackController,
+    viewModel: MusicViewModel,
     onPlayerMenuViewAlbum: () -> Unit,
     onSwipeDownToMainNav: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state by playback.state.collectAsStateWithLifecycle()
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val state = ui.playbackState
     val track = state.currentTrack
-    val canPlay = track != null && track.songUrl != null
+    val canPlay = track.canPlayAudio()
     val durationMs = state.durationMs
     val positionMs = state.positionMs
 
@@ -222,7 +225,7 @@ fun WatchPlayerScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = { playback.skipToPrevious() },
+                onClick = { viewModel.skipToPrevious() },
                 enabled = canPlay,
                 modifier = Modifier.size(44.dp)
             ) {
@@ -255,7 +258,7 @@ fun WatchPlayerScreen(
                         .clip(CircleShape)
                         .background(Color.White.copy(alpha = 0.22f))
                         .clickable(enabled = canPlay && !state.isBuffering) {
-                            if (state.isPlaying) playback.pause() else playback.resume()
+                            if (state.isPlaying) viewModel.pause() else viewModel.resume()
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -273,7 +276,7 @@ fun WatchPlayerScreen(
             }
 
             IconButton(
-                onClick = { playback.skipToNext() },
+                onClick = { viewModel.skipToNext() },
                 enabled = canPlay,
                 modifier = Modifier.size(44.dp)
             ) {
@@ -313,9 +316,10 @@ private fun formatWatchTime(): String =
 @Preview(showBackground = true, backgroundColor = 0xFF000000, widthDp = 228, heightDp = 228)
 @Composable
 private fun WatchPlayerScreenPreview() {
+    val vm = MusicViewModel(PreviewMusicRepository, FakeTrackPlaybackController)
     LaunchedEffect(Unit) {
         FakeTrackPlaybackController.stop()
-        FakeTrackPlaybackController.play(
+        vm.playTrack(
             Music(
                 id = "preview",
                 title = "Perfect",
@@ -326,7 +330,7 @@ private fun WatchPlayerScreenPreview() {
     }
     CustomMusicAppTheme {
         WatchPlayerScreen(
-            playback = FakeTrackPlaybackController,
+            viewModel = vm,
             onPlayerMenuViewAlbum = {},
             onSwipeDownToMainNav = {}
         )

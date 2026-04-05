@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,22 +25,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.luanramos.custommusicapp.R
-import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
-import dev.luanramos.custommusicapp.domain.TrackPlaybackController
+import dev.luanramos.custommusicapp.presentation.MusicViewModel
+import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
 import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
 import dev.luanramos.custommusicapp.ui.components.WatchTopBar
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable
 fun WatchLibraryScreen(
-    playback: TrackPlaybackController,
+    viewModel: MusicViewModel,
     onOpenPlayer: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -57,13 +61,13 @@ fun WatchLibraryScreen(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(
-                items = LibraryMockedData.songs,
+                items = ui.songsList,
                 key = { it.id }
             ) { song ->
                 WatchSongListRow(
                     song = song,
                     onClick = {
-                        playback.play(song)
+                        viewModel.playTrack(song)
                         onOpenPlayer()
                     }
                 )
@@ -114,9 +118,10 @@ private fun WatchSongListRow(
 @Preview(showBackground = true, backgroundColor = 0xFF000000, widthDp = 228, heightDp = 228)
 @Composable
 private fun WatchLibraryScreenPreview() {
+    val vm = MusicViewModel(PreviewMusicRepository, FakeTrackPlaybackController)
     CustomMusicAppTheme {
         WatchLibraryScreen(
-            playback = FakeTrackPlaybackController,
+            viewModel = vm,
             onOpenPlayer = {},
             onBack = {}
         )

@@ -22,11 +22,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.luanramos.custommusicapp.R
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
-import dev.luanramos.custommusicapp.domain.TrackPlaybackController
+import dev.luanramos.custommusicapp.presentation.MusicViewModel
+import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
 import dev.luanramos.custommusicapp.ui.components.LibrarySearchField
 import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
 import dev.luanramos.custommusicapp.ui.components.TabletSongRow
@@ -34,7 +36,7 @@ import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable
 fun TabletHomeScreen(
-    playback: TrackPlaybackController,
+    viewModel: MusicViewModel,
     onOpenPlayer: () -> Unit,
     onLibraryMenuViewAlbum: (Music) -> Unit,
     modifier: Modifier = Modifier
@@ -42,15 +44,12 @@ fun TabletHomeScreen(
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var menuSongId by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val songsById = remember {
-        (LibraryMockedData.songs + LibraryMockedData.sampleDisplayAlbumTracks)
-            .associateBy { it.id }
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val songsById = remember(ui.songsList, LibraryMockedData.sampleDisplayAlbumTracks) {
+        (ui.songsList + LibraryMockedData.sampleDisplayAlbumTracks).associateBy { it.id }
     }
     val menuSong = remember(menuSongId) { menuSongId?.let { songsById[it] } }
-
-    val songs = remember(searchQuery) {
-        filterSongs(LibraryMockedData.songs, searchQuery)
-    }
 
     Column(
         modifier = modifier
@@ -69,7 +68,10 @@ fun TabletHomeScreen(
         )
         LibrarySearchField(
             query = searchQuery,
-            onQueryChange = { searchQuery = it },
+            onQueryChange = { q ->
+                searchQuery = q
+                viewModel.onSearchQueryChange(q)
+            },
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 0.dp)
         )
         LazyColumn(
@@ -79,14 +81,14 @@ fun TabletHomeScreen(
             contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 24.dp)
         ) {
             items(
-                items = songs,
+                items = ui.songsList,
                 key = { it.id }
             ) { song ->
                 TabletSongRow(
                     title = song.title,
                     artist = song.artist,
                     onRowClick = {
-                        playback.play(song)
+                        viewModel.playTrack(song)
                         onOpenPlayer()
                     },
                     onMoreClick = { menuSongId = song.id }
@@ -105,21 +107,13 @@ fun TabletHomeScreen(
     }
 }
 
-private fun filterSongs(songs: List<Music>, query: String): List<Music> {
-    val q = query.trim()
-    if (q.isEmpty()) return songs
-    return songs.filter { song ->
-        song.title.contains(q, ignoreCase = true) ||
-            song.artist.contains(q, ignoreCase = true)
-    }
-}
-
 @Preview(showBackground = true, backgroundColor = 0xFF000000, widthDp = 900, heightDp = 1200)
 @Composable
 private fun TabletHomeScreenPreview() {
+    val vm = MusicViewModel(PreviewMusicRepository, FakeTrackPlaybackController)
     CustomMusicAppTheme {
         TabletHomeScreen(
-            playback = FakeTrackPlaybackController,
+            viewModel = vm,
             onOpenPlayer = {},
             onLibraryMenuViewAlbum = {}
         )

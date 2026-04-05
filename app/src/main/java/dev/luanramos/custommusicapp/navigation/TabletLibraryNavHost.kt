@@ -14,8 +14,7 @@ import dev.luanramos.custommusicapp.ui.tablet.TabletPlayerScreen
 
 @Composable
 fun TabletLibraryNavHost(modifier: Modifier = Modifier) {
-    val playbackViewModel: MusicViewModel = hiltViewModel()
-    val playback = playbackViewModel.playback
+    val musicViewModel: MusicViewModel = hiltViewModel()
     val backStack = rememberLibraryBackStack(saveKey = "tablet_nav")
 
     NavDisplay(
@@ -26,7 +25,7 @@ fun TabletLibraryNavHost(modifier: Modifier = Modifier) {
                 is LibraryDestination.LibraryScreen,
                 is LibraryDestination.WatchSongsList -> NavEntry(key) {
                     TabletHomeScreen(
-                        playback = playback,
+                        viewModel = musicViewModel,
                         onOpenPlayer = {
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },
@@ -39,7 +38,7 @@ fun TabletLibraryNavHost(modifier: Modifier = Modifier) {
 
                 is LibraryDestination.LibraryPlayerScreen -> NavEntry(key) {
                     TabletPlayerScreen(
-                        playback = playback,
+                        viewModel = musicViewModel,
                         onPlayerMenuViewAlbum = {
                             backStack.add(LibraryDestination.AlbumDisplayScreen)
                         },
@@ -55,7 +54,7 @@ fun TabletLibraryNavHost(modifier: Modifier = Modifier) {
                         tracks = LibraryMockedData.sampleDisplayAlbumTracks,
                         onBack = { backStack.removeLastOrNull() },
                         onTrackClick = { song ->
-                            playback.play(song)
+                            musicViewModel.playTrack(song)
                             while (backStack.size > 1) {
                                 backStack.removeLastOrNull()
                             }
