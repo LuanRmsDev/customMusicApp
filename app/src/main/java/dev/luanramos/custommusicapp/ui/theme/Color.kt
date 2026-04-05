@@ -17,6 +17,7 @@ val borderGreyDark = Color(0xFF2A2A36)
 
 val nearBlack = Color(0xFF001A1F)
 val deepGreenBlack = Color(0xFF001F22)
+val actionSheetBackgroundColor = Color(0xCC262626)
 
 // —— Teals (brand) ——
 val teal = Color(0xFF0086A0)

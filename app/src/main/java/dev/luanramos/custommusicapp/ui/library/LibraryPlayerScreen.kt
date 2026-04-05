@@ -2,6 +2,7 @@ package dev.luanramos.custommusicapp.ui.library
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import dev.luanramos.custommusicapp.ui.components.PlayerAlbumArtSection
 import dev.luanramos.custommusicapp.ui.components.PlayerBufferingIndicator
 import dev.luanramos.custommusicapp.ui.components.PlayerErrorMessage
+import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
 import dev.luanramos.custommusicapp.ui.components.PlayerScreenTopBar
 import dev.luanramos.custommusicapp.ui.components.PlayerSeekBar
 import dev.luanramos.custommusicapp.ui.components.PlayerTrackHeader
@@ -36,7 +38,7 @@ import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 @Composable
 fun LibraryPlayerScreen(
     playback: TrackPlaybackController,
-    onOpenAlbumDetails: () -> Unit,
+    onPlayerMenuViewAlbum: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -47,27 +49,37 @@ fun LibraryPlayerScreen(
     val positionMs = state.positionMs
 
     var repeatOn by remember { mutableStateOf(false) }
+    var showMenuSheet by remember { mutableStateOf(false) }
 
-    Column(
+    LaunchedEffect(track?.id) {
+        if (track == null) showMenuSheet = false
+    }
+
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .statusBarsPadding()
-            .navigationBarsPadding()
     ) {
-        PlayerScreenTopBar(
-            title = stringResource(R.string.player_now_playing_title),
-            onBack = onBack,
-            onMore = onOpenAlbumDetails
-        )
-
         Column(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
         ) {
+            PlayerScreenTopBar(
+                title = stringResource(R.string.player_now_playing_title),
+                onBack = onBack,
+                onMore = { if (track != null) showMenuSheet = true },
+                moreEnabled = track != null
+            )
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
             PlayerAlbumArtSection()
 
             Column(
@@ -113,6 +125,16 @@ fun LibraryPlayerScreen(
                 }
             }
         }
+        }
+
+        if (showMenuSheet && track != null) {
+            PlayerMenuBottomSheet(
+                onDismiss = { showMenuSheet = false },
+                songTitle = track.title,
+                artistName = track.artist,
+                onViewAlbumClick = onPlayerMenuViewAlbum
+            )
+        }
     }
 }
 
@@ -133,7 +155,7 @@ private fun LibraryPlayerScreenPreview() {
     CustomMusicAppTheme {
         LibraryPlayerScreen(
             playback = FakeTrackPlaybackController,
-            onOpenAlbumDetails = {},
+            onPlayerMenuViewAlbum = {},
             onBack = {}
         )
     }

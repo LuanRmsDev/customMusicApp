@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +35,7 @@ import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import dev.luanramos.custommusicapp.ui.components.LibrarySearchField
 import dev.luanramos.custommusicapp.ui.components.LibrarySongRow
 import dev.luanramos.custommusicapp.ui.components.LibraryTopBar
+import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
 import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
@@ -41,10 +43,12 @@ import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 fun LibraryScreen(
     playback: TrackPlaybackController,
     onOpenPlayer: () -> Unit,
+    onLibraryMenuViewAlbum: (Music) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isSearchActive by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    var menuSong by remember { mutableStateOf<Music?>(null) }
     val searchFocusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
 
@@ -61,51 +65,62 @@ fun LibraryScreen(
         }
     }
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        LibraryTopBar(
-            title = stringResource(R.string.songs_screen_title),
-            modifier = Modifier.statusBarsPadding(),
-            isSearchActive = isSearchActive,
-            onSearchToggleClick = {
-                isSearchActive = !isSearchActive
-            }
-        )
-        AnimatedVisibility(
-            visible = isSearchActive,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut()
-        ) {
-            LibrarySearchField(
-                query = searchQuery,
-                onQueryChange = { searchQuery = it },
-                focusRequester = searchFocusRequester,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+        Column(Modifier.fillMaxSize()) {
+            LibraryTopBar(
+                title = stringResource(R.string.songs_screen_title),
+                modifier = Modifier.statusBarsPadding(),
+                isSearchActive = isSearchActive,
+                onSearchToggleClick = {
+                    isSearchActive = !isSearchActive
+                }
             )
-        }
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .navigationBarsPadding(),
-            contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 16.dp)
-        ) {
-            items(
-                items = songs,
-                key = { it.id }
-            ) { song ->
-                LibrarySongRow(
-                    title = song.title,
-                    artist = song.artist,
-                    onRowClick = {
-                        playback.play(song)
-                        onOpenPlayer()
-                    },
-                    onMoreClick = { /* overflow menu */ }
+            AnimatedVisibility(
+                visible = isSearchActive,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                LibrarySearchField(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                    focusRequester = searchFocusRequester,
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
                 )
             }
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .navigationBarsPadding(),
+                contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 16.dp)
+            ) {
+                items(
+                    items = songs,
+                    key = { it.id }
+                ) { song ->
+                    LibrarySongRow(
+                        title = song.title,
+                        artist = song.artist,
+                        onRowClick = {
+                            playback.play(song)
+                            onOpenPlayer()
+                        },
+                        onMoreClick = { menuSong = song }
+                    )
+                }
+            }
+        }
+
+        menuSong?.let { song ->
+            PlayerMenuBottomSheet(
+                onDismiss = { menuSong = null },
+                songTitle = song.title,
+                artistName = song.artist,
+                onViewAlbumClick = { onLibraryMenuViewAlbum(song) }
+            )
         }
     }
 }
@@ -125,7 +140,8 @@ private fun LibraryScreenPreview() {
     CustomMusicAppTheme {
         LibraryScreen(
             playback = FakeTrackPlaybackController,
-            onOpenPlayer = {}
+            onOpenPlayer = {},
+            onLibraryMenuViewAlbum = {}
         )
     }
 }

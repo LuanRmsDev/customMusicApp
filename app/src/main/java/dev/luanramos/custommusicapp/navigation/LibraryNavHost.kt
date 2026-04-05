@@ -33,6 +33,9 @@ fun LibraryNavHost(modifier: Modifier = Modifier) {
                         onOpenPlayer = {
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },
+                        onLibraryMenuViewAlbum = { _ ->
+                            backStack.add(LibraryDestination.AlbumDetailsScreen)
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -40,7 +43,7 @@ fun LibraryNavHost(modifier: Modifier = Modifier) {
                 is LibraryDestination.LibraryPlayerScreen -> NavEntry(key) {
                     LibraryPlayerScreen(
                         playback = playback,
-                        onOpenAlbumDetails = {
+                        onPlayerMenuViewAlbum = {
                             backStack.add(LibraryDestination.AlbumDetailsScreen)
                         },
                         onBack = { backStack.removeLastOrNull() },

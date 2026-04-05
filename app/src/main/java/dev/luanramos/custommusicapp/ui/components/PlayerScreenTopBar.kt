@@ -28,7 +28,8 @@ fun PlayerScreenTopBar(
     title: String,
     onBack: () -> Unit,
     onMore: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    moreEnabled: Boolean = true
 ) {
     Row(
         modifier = modifier
@@ -60,6 +61,7 @@ fun PlayerScreenTopBar(
         )
         IconButton(
             onClick = onMore,
+            enabled = moreEnabled,
             modifier = Modifier.size(48.dp)
         ) {
             Icon(
