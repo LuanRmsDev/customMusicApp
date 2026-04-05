@@ -23,7 +23,8 @@ fun TabletLibraryNavHost(modifier: Modifier = Modifier) {
         onBack = { backStack.removeLastOrNull() },
         entryProvider = { key ->
             when (key) {
-                is LibraryDestination.LibraryScreen -> NavEntry(key) {
+                is LibraryDestination.LibraryScreen,
+                is LibraryDestination.WatchSongsList -> NavEntry(key) {
                     TabletHomeScreen(
                         playback = playback,
                         onOpenPlayer = {

@@ -31,6 +31,7 @@
     <!-- Shared actions -->
     <string name="action_open_player">Open player</string>
     <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
 
     <!-- Device form factors (for adaptive root / placeholders) -->
     <string name="device_form_factor_smartphone">Smartphone</string>
@@ -38,6 +39,12 @@
     <string name="device_form_factor_android_auto">Android Auto</string>
     <string name="device_form_factor_smartwatch">Smartwatch</string>
     <string name="device_ui_pending_message">UI for this device type is not implemented yet (%1$s).</string>
+
+    <!-- Wear OS hub -->
+    <string name="watch_nav_title_music">Music</string>
+    <string name="watch_nav_now_playing">Now playing</string>
+    <string name="watch_nav_albums">Albums</string>
+    <string name="watch_nav_songs">Songs</string>
 
     <!-- Android Auto -->
     <string name="car_browse_title">Music</string>
