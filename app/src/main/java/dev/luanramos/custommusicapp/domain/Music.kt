@@ -4,5 +4,6 @@ data class Music(
     val id: String,
     val title: String,
     val artist: String,
-    val songUrl: String? = null
+    val songUrl: String? = null,
+    val artwork: MusicArtwork? = null,
 )
