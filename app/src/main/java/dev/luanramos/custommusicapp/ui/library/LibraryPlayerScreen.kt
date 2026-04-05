@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +36,7 @@ import dev.luanramos.custommusicapp.ui.components.PlayerSeekBar
 import dev.luanramos.custommusicapp.ui.components.PlayerTrackHeader
 import dev.luanramos.custommusicapp.ui.components.PlayerTransportControls
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
+import dev.luanramos.custommusicapp.ui.util.isCompactPhoneLandscape
 
 @Composable
 fun LibraryPlayerScreen(
@@ -54,6 +57,8 @@ fun LibraryPlayerScreen(
     LaunchedEffect(track?.id) {
         if (track == null) showMenuSheet = false
     }
+
+    val phoneLandscape = isCompactPhoneLandscape()
 
     Box(
         modifier = modifier
@@ -77,54 +82,66 @@ fun LibraryPlayerScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-            PlayerAlbumArtSection()
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                PlayerTrackHeader(
-                    title = track?.title,
-                    artist = track?.artist,
-                    emptyLabel = stringResource(R.string.player_no_track)
-                )
-
-                state.errorMessage?.let { PlayerErrorMessage(message = it) }
-
-                if (track != null) {
-                    PlayerSeekBar(
-                        positionMs = positionMs,
-                        durationMs = durationMs,
-                        onSeekToFraction = { v ->
-                            if (durationMs > 0) {
-                                playback.seekTo((v * durationMs).toLong())
-                            }
-                        },
-                        enabled = canPlay && durationMs > 0 && !state.isBuffering
-                    )
+                    .padding(horizontal = 24.dp)
+                    .then(
+                        if (phoneLandscape) {
+                            Modifier.verticalScroll(rememberScrollState())
+                        } else {
+                            Modifier
+                        }
+                    ),
+                verticalArrangement = if (phoneLandscape) {
+                    Arrangement.spacedBy(16.dp)
+                } else {
+                    Arrangement.SpaceBetween
                 }
-
-                PlayerBufferingIndicator(visible = state.isBuffering)
-
-                if (track != null) {
-                    PlayerTransportControls(
-                        isPlaying = state.isPlaying,
-                        canPlay = canPlay,
-                        isBuffering = state.isBuffering,
-                        repeatOn = repeatOn,
-                        onPlayPause = {
-                            if (state.isPlaying) playback.pause() else playback.resume()
-                        },
-                        onSkipPrevious = { playback.skipToPrevious() },
-                        onSkipNext = { playback.skipToNext() },
-                        onRepeatToggle = { repeatOn = !repeatOn }
+            ) {
+                if (!phoneLandscape) {
+                    PlayerAlbumArtSection()
+                }
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    PlayerTrackHeader(
+                        title = track?.title,
+                        artist = track?.artist,
+                        emptyLabel = stringResource(R.string.player_no_track)
                     )
+
+                    state.errorMessage?.let { PlayerErrorMessage(message = it) }
+
+                    if (track != null) {
+                        PlayerSeekBar(
+                            positionMs = positionMs,
+                            durationMs = durationMs,
+                            onSeekToFraction = { v ->
+                                if (durationMs > 0) {
+                                    playback.seekTo((v * durationMs).toLong())
+                                }
+                            },
+                            enabled = canPlay && durationMs > 0 && !state.isBuffering
+                        )
+                    }
+
+                    PlayerBufferingIndicator(visible = state.isBuffering)
+
+                    if (track != null) {
+                        PlayerTransportControls(
+                            isPlaying = state.isPlaying,
+                            canPlay = canPlay,
+                            isBuffering = state.isBuffering,
+                            repeatOn = repeatOn,
+                            onPlayPause = {
+                                if (state.isPlaying) playback.pause() else playback.resume()
+                            },
+                            onSkipPrevious = { playback.skipToPrevious() },
+                            onSkipNext = { playback.skipToNext() },
+                            onRepeatToggle = { repeatOn = !repeatOn }
+                        )
+                    }
                 }
             }
-        }
         }
 
         if (showMenuSheet && track != null) {

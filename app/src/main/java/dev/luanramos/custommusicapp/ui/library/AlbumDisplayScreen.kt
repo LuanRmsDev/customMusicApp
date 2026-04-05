@@ -30,6 +30,7 @@ import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
 import dev.luanramos.custommusicapp.ui.components.AlbumDisplayTopBar
 import dev.luanramos.custommusicapp.ui.components.AlbumDisplayTrackRow
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
+import dev.luanramos.custommusicapp.ui.util.isCompactPhoneLandscape
 
 @Composable
 fun AlbumDisplayScreen(
@@ -40,6 +41,8 @@ fun AlbumDisplayScreen(
     onTrackClick: (Music) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val phoneLandscape = isCompactPhoneLandscape()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -51,61 +54,81 @@ fun AlbumDisplayScreen(
             title = albumTitle,
             onBack = onBack
         )
-        Spacer(modifier = Modifier.height(40.dp))
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Surface(
-                modifier = Modifier.size(120.dp),
-                shape = RoundedCornerShape(20.dp),
-                shadowElevation = 16.dp,
-                color = MaterialTheme.colorScheme.background
+        if (phoneLandscape) {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp)
             ) {
-                AlbumArtPlaceholder(
-                    size = 120.dp,
-                    cornerDp = 20.dp
+                items(
+                    items = tracks,
+                    key = { it.id }
+                ) { track ->
+                    AlbumDisplayTrackRow(
+                        title = track.title,
+                        artist = track.artist,
+                        onClick = { onTrackClick(track) }
+                    )
+                }
+            }
+        } else {
+            Spacer(modifier = Modifier.height(40.dp))
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Surface(
+                    modifier = Modifier.size(120.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    shadowElevation = 16.dp,
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    AlbumArtPlaceholder(
+                        size = 120.dp,
+                        cornerDp = 20.dp
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = albumTitle,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = 20.sp,
+                        lineHeight = 24.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 24.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = artistName,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontSize = 14.sp,
+                        lineHeight = 16.8.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 24.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = albumTitle,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = 20.sp,
-                    lineHeight = 24.sp
-                ),
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 24.dp)
-            )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = artistName,
-                style = MaterialTheme.typography.titleSmall.copy(
-                    fontSize = 14.sp,
-                    lineHeight = 16.8.sp
-                ),
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 24.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(top = 10.dp, bottom = 24.dp)
-        ) {
-            items(
-                items = tracks,
-                key = { it.id }
-            ) { track ->
-                AlbumDisplayTrackRow(
-                    title = track.title,
-                    artist = track.artist,
-                    onClick = { onTrackClick(track) }
-                )
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(top = 10.dp, bottom = 24.dp)
+            ) {
+                items(
+                    items = tracks,
+                    key = { it.id }
+                ) { track ->
+                    AlbumDisplayTrackRow(
+                        title = track.title,
+                        artist = track.artist,
+                        onClick = { onTrackClick(track) }
+                    )
+                }
             }
         }
     }
