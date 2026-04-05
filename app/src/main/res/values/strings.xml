@@ -1,7 +1,10 @@
 <resources>
+
+    <!-- App -->
     <string name="app_name">Custom Music App</string>
     <string name="splash_tagline">Your sound, uninterrupted</string>
 
+    <!-- Library (songs list, search) -->
     <string name="library_screen_title">Library</string>
     <string name="songs_screen_title">Songs</string>
     <string name="library_search_content_description">Search</string>
@@ -11,6 +14,7 @@
     <string name="library_section_recently_played">Recently played</string>
     <string name="library_section_your_library">Your library</string>
 
+    <!-- Player -->
     <string name="screen_player_title">Player</string>
     <string name="player_now_playing_title">Now playing</string>
     <string name="player_play">Play</string>
@@ -22,6 +26,9 @@
     <string name="player_repeat">Repeat</string>
     <string name="player_open_menu">Open menu</string>
     <string name="player_action_view_album">View album</string>
+
+    <!-- Shared actions -->
     <string name="action_open_player">Open player</string>
     <string name="action_back">Back</string>
+
 </resources>
