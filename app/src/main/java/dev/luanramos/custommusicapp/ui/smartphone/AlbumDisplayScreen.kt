@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.domain.model.Music
-import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
 import dev.luanramos.custommusicapp.ui.components.AlbumDisplayTopBar
+import dev.luanramos.custommusicapp.ui.components.TrackAlbumArt
 import dev.luanramos.custommusicapp.ui.components.AlbumDisplayTrackRow
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 import dev.luanramos.custommusicapp.ui.util.isCompactPhoneLandscape
@@ -68,7 +68,8 @@ fun AlbumDisplayScreen(
                     AlbumDisplayTrackRow(
                         title = track.title,
                         artist = track.artist,
-                        onClick = { onTrackClick(track) }
+                        onClick = { onTrackClick(track) },
+                        track = track,
                     )
                 }
             }
@@ -84,9 +85,11 @@ fun AlbumDisplayScreen(
                     shadowElevation = 16.dp,
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AlbumArtPlaceholder(
+                    TrackAlbumArt(
+                        track = tracks.firstOrNull(),
                         size = 120.dp,
-                        cornerDp = 20.dp
+                        cornerDp = 20.dp,
+                        highRes = true,
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -126,7 +129,8 @@ fun AlbumDisplayScreen(
                     AlbumDisplayTrackRow(
                         title = track.title,
                         artist = track.artist,
-                        onClick = { onTrackClick(track) }
+                        onClick = { onTrackClick(track) },
+                        track = track,
                     )
                 }
             }

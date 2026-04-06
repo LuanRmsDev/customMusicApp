@@ -25,12 +25,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.luanramos.custommusicapp.R
+import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable
 fun TabletSongRow(
     title: String,
     artist: String,
+    track: Music? = null,
     modifier: Modifier = Modifier,
     showOverflowMenu: Boolean = true,
     onRowClick: () -> Unit = {},
@@ -53,7 +55,11 @@ fun TabletSongRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            AlbumArtPlaceholder(size = 78.dp, cornerDp = 10.dp)
+            TrackAlbumArt(
+                track = track,
+                size = 78.dp,
+                cornerDp = 10.dp,
+            )
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(6.dp)

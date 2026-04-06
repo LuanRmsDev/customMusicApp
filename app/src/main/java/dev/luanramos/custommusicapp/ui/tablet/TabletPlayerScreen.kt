@@ -45,7 +45,7 @@ import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.presentation.MusicViewModel
 import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
-import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
+import dev.luanramos.custommusicapp.ui.components.TrackAlbumArt
 import dev.luanramos.custommusicapp.ui.components.PlayerBufferingIndicator
 import dev.luanramos.custommusicapp.ui.components.PlayerErrorMessage
 import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
@@ -110,7 +110,12 @@ fun TabletPlayerScreen(
                         .padding(bottom = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    AlbumArtPlaceholder(size = 286.dp, cornerDp = 16.dp)
+                    TrackAlbumArt(
+                        track = track,
+                        size = 286.dp,
+                        cornerDp = 16.dp,
+                        highRes = true,
+                    )
                 }
                 Spacer(modifier = Modifier.weight(0.5f))
                 if (track == null) {
@@ -240,7 +245,8 @@ fun TabletPlayerScreen(
                                     title = song.title,
                                     artist = song.artist,
                                     isCurrentTrack = song.id == state.currentTrack?.id,
-                                    onClick = { viewModel.playTrack(song) }
+                                    onClick = { viewModel.playTrack(song) },
+                                    track = song,
                                 )
                             }
                         }

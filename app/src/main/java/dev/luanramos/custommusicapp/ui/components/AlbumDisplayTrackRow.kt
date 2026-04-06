@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 import dev.luanramos.custommusicapp.ui.theme.greyArtist
 
@@ -26,6 +27,7 @@ fun AlbumDisplayTrackRow(
     title: String,
     artist: String,
     onClick: () -> Unit,
+    track: Music? = null,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -38,9 +40,10 @@ fun AlbumDisplayTrackRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        AlbumArtPlaceholder(
+        TrackAlbumArt(
+            track = track,
             size = 44.dp,
-            cornerDp = 8.dp
+            cornerDp = 8.dp,
         )
         Column(
             modifier = Modifier.weight(1f),

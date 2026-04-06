@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.domain.model.Music
-import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
 import dev.luanramos.custommusicapp.ui.components.AlbumDisplayTopBar
+import dev.luanramos.custommusicapp.ui.components.TrackAlbumArt
 import dev.luanramos.custommusicapp.ui.components.TabletSongRow
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
@@ -64,7 +64,12 @@ fun TabletAlbumScreen(
                 shadowElevation = 12.dp,
                 color = MaterialTheme.colorScheme.background
             ) {
-                AlbumArtPlaceholder(size = 120.dp, cornerDp = 16.dp)
+                TrackAlbumArt(
+                    track = tracks.firstOrNull(),
+                    size = 120.dp,
+                    cornerDp = 16.dp,
+                    highRes = true,
+                )
             }
             Column(
                 modifier = Modifier.weight(1f),
@@ -102,6 +107,7 @@ fun TabletAlbumScreen(
                 TabletSongRow(
                     title = track.title,
                     artist = track.artist,
+                    track = track,
                     showOverflowMenu = false,
                     onRowClick = { onTrackClick(track) }
                 )

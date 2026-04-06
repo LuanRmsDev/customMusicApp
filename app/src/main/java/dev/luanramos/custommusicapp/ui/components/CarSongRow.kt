@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.luanramos.custommusicapp.R
+import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 import dev.luanramos.custommusicapp.ui.theme.greyArtist
 
@@ -34,6 +35,7 @@ fun CarSongRow(
     artist: String,
     isPlaying: Boolean,
     onClick: () -> Unit,
+    track: Music? = null,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -45,7 +47,11 @@ fun CarSongRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(32.dp)
     ) {
-        AlbumArtPlaceholder(size = 128.dp, cornerDp = 12.dp)
+        TrackAlbumArt(
+            track = track,
+            size = 128.dp,
+            cornerDp = 12.dp,
+        )
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp)

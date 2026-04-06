@@ -148,6 +148,7 @@ fun LibraryScreen(
                             LibrarySongRow(
                                 title = song.title,
                                 artist = song.artist,
+                                track = song,
                                 onRowClick = {
                                     viewModel.playTrack(song)
                                     onOpenPlayer()

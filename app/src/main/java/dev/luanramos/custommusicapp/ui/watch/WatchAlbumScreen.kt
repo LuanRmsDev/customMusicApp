@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.domain.model.Music
-import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
+import dev.luanramos.custommusicapp.ui.components.TrackAlbumArt
 import dev.luanramos.custommusicapp.ui.components.WatchTopBar
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
@@ -55,7 +55,11 @@ fun WatchAlbumScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            AlbumArtPlaceholder(size = 48.dp, cornerDp = 8.dp)
+            TrackAlbumArt(
+                track = tracks.firstOrNull(),
+                size = 48.dp,
+                cornerDp = 8.dp,
+            )
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(2.dp)

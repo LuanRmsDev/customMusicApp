@@ -24,12 +24,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.luanramos.custommusicapp.R
+import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 @Composable
 fun LibrarySongRow(
     title: String,
     artist: String,
+    track: Music? = null,
     modifier: Modifier = Modifier,
     onRowClick: () -> Unit = {},
     onMoreClick: () -> Unit = {}
@@ -50,7 +52,11 @@ fun LibrarySongRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            AlbumArtPlaceholder()
+            TrackAlbumArt(
+                track = track,
+                size = 52.dp,
+                cornerDp = 8.dp,
+            )
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)

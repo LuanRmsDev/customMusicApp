@@ -100,7 +100,7 @@ fun LibraryPlayerScreen(
                 }
             ) {
                 if (!phoneLandscape) {
-                    PlayerAlbumArtSection()
+                    PlayerAlbumArtSection(track = track)
                 }
                 Column(
                     modifier = Modifier.fillMaxWidth(),

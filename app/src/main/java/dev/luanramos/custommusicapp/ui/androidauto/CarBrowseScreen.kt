@@ -77,7 +77,8 @@ fun CarBrowseScreen(
                             title = song.title,
                             artist = song.artist,
                             isPlaying = song.id == currentTrackId,
-                            onClick = { onSongClick(song) }
+                            onClick = { onSongClick(song) },
+                            track = song,
                         )
                     }
                 }

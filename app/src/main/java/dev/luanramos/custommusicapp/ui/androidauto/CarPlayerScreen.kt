@@ -40,7 +40,7 @@ import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.presentation.MusicViewModel
 import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
-import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
+import dev.luanramos.custommusicapp.ui.components.TrackAlbumArt
 import dev.luanramos.custommusicapp.ui.components.CarPlayerTransportRow
 import dev.luanramos.custommusicapp.ui.components.PlayerBufferingIndicator
 import dev.luanramos.custommusicapp.ui.components.PlayerErrorMessage
@@ -87,13 +87,15 @@ fun CarPlayerScreen(
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        AlbumArtPlaceholder(
+        TrackAlbumArt(
+            track = track,
             modifier = Modifier
                 .align(Alignment.Center)
                 .then(blurModifier)
                 .alpha(0.45f),
             size = 560.dp,
-            cornerDp = 28.dp
+            cornerDp = 28.dp,
+            highRes = true,
         )
         Box(
             Modifier
@@ -159,7 +161,12 @@ fun CarPlayerScreen(
                 horizontalArrangement = Arrangement.spacedBy(40.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                AlbumArtPlaceholder(size = 240.dp, cornerDp = 16.dp)
+                TrackAlbumArt(
+                    track = track,
+                    size = 240.dp,
+                    cornerDp = 16.dp,
+                    highRes = true,
+                )
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(12.dp)

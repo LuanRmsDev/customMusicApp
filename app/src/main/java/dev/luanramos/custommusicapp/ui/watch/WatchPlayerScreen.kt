@@ -52,7 +52,7 @@ import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.presentation.MusicViewModel
 import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
-import dev.luanramos.custommusicapp.ui.components.AlbumArtPlaceholder
+import dev.luanramos.custommusicapp.ui.components.TrackAlbumArtCircle
 import dev.luanramos.custommusicapp.ui.components.PlayerBufferingIndicator
 import dev.luanramos.custommusicapp.ui.components.PlayerErrorMessage
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
@@ -117,27 +117,23 @@ fun WatchPlayerScreen(
     ) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val artSize = minOf(maxWidth, maxHeight) * 0.88f
-            val corner = artSize / 2
             val artModifier = if (track != null) {
-                Modifier
-                    .clip(CircleShape)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClickLabel = stringResource(R.string.player_action_view_album),
-                        onClick = onPlayerMenuViewAlbum
-                    )
+                Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClickLabel = stringResource(R.string.player_action_view_album),
+                    onClick = onPlayerMenuViewAlbum
+                )
             } else {
-                Modifier.clip(CircleShape)
+                Modifier
             }
-            Box(
+            TrackAlbumArtCircle(
+                track = track,
                 modifier = Modifier
-                    .size(artSize)
                     .align(Alignment.Center)
-                    .then(artModifier)
-            ) {
-                AlbumArtPlaceholder(size = artSize, cornerDp = corner)
-            }
+                    .then(artModifier),
+                size = artSize,
+            )
         }
 
         Box(

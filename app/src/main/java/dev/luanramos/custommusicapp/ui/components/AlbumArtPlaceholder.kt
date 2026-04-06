@@ -23,7 +23,9 @@ import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 fun AlbumArtPlaceholder(
     modifier: Modifier = Modifier,
     size: Dp = 52.dp,
-    cornerDp: Dp = 8.dp
+    cornerDp: Dp = 8.dp,
+    /** When true, [modifier] should fill the parent; [size] is ignored for layout. */
+    fillMax: Boolean = false,
 ) {
     val shape = RoundedCornerShape(cornerDp)
     val brush = Brush.linearGradient(
@@ -34,7 +36,7 @@ fun AlbumArtPlaceholder(
     )
     Box(
         modifier = modifier
-            .size(size)
+            .then(if (fillMax) Modifier else Modifier.size(size))
             .clip(shape)
             .background(brush),
         contentAlignment = Alignment.Center

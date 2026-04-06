@@ -28,6 +28,7 @@
     <string name="player_open_menu">Open menu</string>
     <string name="tablet_player_queue_icon_description">Song queue</string>
     <string name="player_action_view_album">View album</string>
+    <string name="album_art_content_description">Album artwork</string>
 
     <!-- Shared actions -->
     <string name="action_open_player">Open player</string>
