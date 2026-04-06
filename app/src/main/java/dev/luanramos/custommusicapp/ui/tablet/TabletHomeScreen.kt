@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +50,13 @@ fun TabletHomeScreen(
     var menuSongId by rememberSaveable { mutableStateOf<String?>(null) }
 
     val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        viewModel.libraryScrollToTop.collect {
+            listState.scrollToItem(0)
+        }
+    }
 
     val songsById = remember(ui.songsList, LibraryMockedData.sampleDisplayAlbumTracks) {
         (ui.songsList + LibraryMockedData.sampleDisplayAlbumTracks).associateBy { it.id }
@@ -104,6 +113,7 @@ fun TabletHomeScreen(
 
             else ->
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier
                         .weight(1f)
                         .navigationBarsPadding(),

@@ -8,8 +8,11 @@ import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.domain.repository.MusicRepository
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -22,6 +25,9 @@ class MusicViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(MusicUiState())
     val uiState: StateFlow<MusicUiState> = _uiState.asStateFlow()
+
+    private val _libraryScrollToTop = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val libraryScrollToTop: SharedFlow<Unit> = _libraryScrollToTop.asSharedFlow()
 
     private val _repeatOne = MutableStateFlow(false)
     val repeatOne: StateFlow<Boolean> = _repeatOne.asStateFlow()
@@ -41,10 +47,10 @@ class MusicViewModel @Inject constructor(
                 _uiState.update { it.copy(playbackState = pb) }
             }
         }
-        loadCatalog()
+        loadCatalog(emitScrollToTop = false)
     }
 
-    private fun loadCatalog() {
+    private fun loadCatalog(emitScrollToTop: Boolean = false) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
@@ -52,6 +58,9 @@ class MusicViewModel @Inject constructor(
                 _uiState.update { it.copy(songsList = songs) }
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
+                if (emitScrollToTop) {
+                    _libraryScrollToTop.tryEmit(Unit)
+                }
             }
         }
     }
@@ -65,7 +74,7 @@ class MusicViewModel @Inject constructor(
 
     /** Re-runs the default catalog (recent first, else popular). */
     fun retryLoadLibrary() {
-        loadCatalog()
+        loadCatalog(emitScrollToTop = true)
     }
 
     /**
@@ -123,6 +132,7 @@ class MusicViewModel @Inject constructor(
                 _uiState.update { it.copy(songsList = songs) }
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
+                _libraryScrollToTop.tryEmit(Unit)
             }
         }
     }
