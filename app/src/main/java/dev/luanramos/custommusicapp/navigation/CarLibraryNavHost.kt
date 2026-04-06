@@ -3,6 +3,7 @@ package dev.luanramos.custommusicapp.navigation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -13,11 +14,17 @@ import dev.luanramos.custommusicapp.presentation.MusicViewModel
 import dev.luanramos.custommusicapp.ui.androidauto.CarAlbumListScreen
 import dev.luanramos.custommusicapp.ui.androidauto.CarBrowseScreen
 import dev.luanramos.custommusicapp.ui.androidauto.CarPlayerScreen
+import kotlinx.coroutines.flow.map
 
 @Composable
 fun CarLibraryNavHost(modifier: Modifier = Modifier) {
     val musicViewModel: MusicViewModel = hiltViewModel()
-    val ui by musicViewModel.uiState.collectAsStateWithLifecycle()
+    val currentTrackId by remember(musicViewModel) {
+        musicViewModel.uiState.map { it.playbackState.currentTrack?.id }
+    }.collectAsStateWithLifecycle(
+        initialValue = musicViewModel.uiState.value.playbackState.currentTrack?.id,
+    )
+    val mocked by musicViewModel.mockedDataState.collectAsStateWithLifecycle()
     val backStack = rememberLibraryBackStack(saveKey = "android_auto_nav")
 
     NavDisplay(
@@ -28,10 +35,10 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
                 is LibraryDestination.LibraryScreen,
                 is LibraryDestination.WatchSongsList -> NavEntry(key) {
                     CarBrowseScreen(
-                        songs = ui.songsList,
-                        currentTrackId = ui.playbackState.currentTrack?.id,
-                        isCatalogLoading = ui.isLoading,
-                        onRetryCatalog = { musicViewModel.retryLoadLibrary() },
+                        songs = mocked.songs,
+                        currentTrackId = currentTrackId,
+                        isCatalogLoading = false,
+                        onRetryCatalog = { },
                         onSongClick = { song ->
                             musicViewModel.playTrack(song)
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
@@ -55,7 +62,7 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
                     CarAlbumListScreen(
                         albumTitle = LibraryMockedData.sampleDisplayAlbumTitle,
                         tracks = LibraryMockedData.sampleDisplayAlbumTracks,
-                        currentTrackId = ui.playbackState.currentTrack?.id,
+                        currentTrackId = currentTrackId,
                         onBack = { backStack.removeLastOrNull() },
                         onTrackClick = { song ->
                             musicViewModel.playTrack(song)

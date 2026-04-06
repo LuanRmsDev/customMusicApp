@@ -3,6 +3,7 @@ package dev.luanramos.custommusicapp.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.domain.repository.MusicRepository
@@ -21,6 +22,10 @@ class MusicViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(MusicUiState())
     val uiState: StateFlow<MusicUiState> = _uiState.asStateFlow()
+
+    //TODO: The Android Auto and Watch will observe only the mocked data for know, as they don't have a search feature in designs
+    private val _mockedDataState = MutableStateFlow(LibraryMockedData)
+    val mockedDataState = _mockedDataState.asStateFlow()
 
     init {
         viewModelScope.launch {

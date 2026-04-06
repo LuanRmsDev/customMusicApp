@@ -61,6 +61,7 @@ import dev.luanramos.custommusicapp.ui.util.canPlayAudio
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 
 /**
@@ -77,8 +78,9 @@ fun WatchPlayerScreen(
     onSwipeDownToMainNav: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val ui by viewModel.uiState.collectAsStateWithLifecycle()
-    val state = ui.playbackState
+    val state by remember(viewModel) {
+        viewModel.uiState.map { it.playbackState }
+    }.collectAsStateWithLifecycle(initialValue = viewModel.uiState.value.playbackState)
     val track = state.currentTrack
     val canPlay = track.canPlayAudio()
     val durationMs = state.durationMs

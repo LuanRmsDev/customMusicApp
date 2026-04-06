@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,7 +43,8 @@ fun WatchLibraryScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val mocked by viewModel.mockedDataState.collectAsStateWithLifecycle()
+    val songs = mocked.songs
 
     Column(
         modifier = modifier
@@ -58,19 +58,9 @@ fun WatchLibraryScreen(
             modifier = Modifier.padding(top = 4.dp)
         )
         when {
-            ui.isLoading && ui.songsList.isEmpty() ->
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
-
-            ui.songsList.isEmpty() ->
+            songs.isEmpty() ->
                 NoInternetScreen(
-                    onRetry = { viewModel.retryLoadLibrary() },
+                    onRetry = { },
                     modifier = Modifier.weight(1f),
                 )
 
@@ -81,7 +71,7 @@ fun WatchLibraryScreen(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     items(
-                        items = ui.songsList,
+                        items = songs,
                         key = { it.id }
                     ) { song ->
                         WatchSongListRow(

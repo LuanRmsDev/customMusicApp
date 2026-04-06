@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -30,7 +31,7 @@ import dev.luanramos.custommusicapp.R
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 
 /**
- * Android Auto / wide player control strip: repeat | previous | play | next | more
+ * Android Auto / wide player control strip: repeat | previous | play | next | album | more
  */
 @Composable
 fun CarPlayerTransportRow(
@@ -42,8 +43,10 @@ fun CarPlayerTransportRow(
     onSkipPrevious: () -> Unit,
     onSkipNext: () -> Unit,
     onRepeatToggle: () -> Unit,
+    onViewAlbum: () -> Unit,
     onMore: () -> Unit,
     modifier: Modifier = Modifier,
+    albumEnabled: Boolean = true,
     moreEnabled: Boolean = true
 ) {
     Row(
@@ -110,6 +113,18 @@ fun CarPlayerTransportRow(
             )
         }
         IconButton(
+            onClick = onViewAlbum,
+            enabled = albumEnabled,
+            modifier = Modifier.size(80.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Album,
+                contentDescription = stringResource(R.string.car_destination_album),
+                modifier = Modifier.size(40.dp),
+                tint = if (albumEnabled) Color.White else Color.White.copy(alpha = 0.38f)
+            )
+        }
+        IconButton(
             onClick = onMore,
             enabled = moreEnabled,
             modifier = Modifier.size(80.dp)
@@ -137,6 +152,7 @@ private fun CarPlayerTransportRowPreview() {
             onSkipPrevious = {},
             onSkipNext = {},
             onRepeatToggle = {},
+            onViewAlbum = {},
             onMore = {}
         )
     }
