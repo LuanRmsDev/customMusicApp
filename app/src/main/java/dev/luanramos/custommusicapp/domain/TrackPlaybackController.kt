@@ -29,6 +29,8 @@ interface TrackPlaybackController {
 
     fun skipToNext()
 
+    fun setRepeatOne(enabled: Boolean)
+
     /** Release native resources */
     fun release()
 }

@@ -15,6 +15,7 @@ import dev.luanramos.custommusicapp.ui.androidauto.CarAlbumListScreen
 import dev.luanramos.custommusicapp.ui.androidauto.CarBrowseScreen
 import dev.luanramos.custommusicapp.ui.androidauto.CarPlayerScreen
 import kotlinx.coroutines.flow.map
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun CarLibraryNavHost(modifier: Modifier = Modifier) {
@@ -22,7 +23,7 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
     val currentTrackId by remember(musicViewModel) {
         musicViewModel.uiState.map { it.playbackState.currentTrack?.id }
     }.collectAsStateWithLifecycle(
-        initialValue = musicViewModel.uiState.value.playbackState.currentTrack?.id,
+        initialValue = musicViewModel.uiState.collectAsState().value.playbackState.currentTrack?.id,
     )
     val mocked by musicViewModel.mockedDataState.collectAsStateWithLifecycle()
     val backStack = rememberLibraryBackStack(saveKey = "android_auto_nav")
@@ -40,7 +41,7 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
                         isCatalogLoading = false,
                         onRetryCatalog = { },
                         onSongClick = { song ->
-                            musicViewModel.playTrack(song)
+                            musicViewModel.playTrack(song, mocked.songs)
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },
                         modifier = Modifier.fillMaxSize()
@@ -65,7 +66,7 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
                         currentTrackId = currentTrackId,
                         onBack = { backStack.removeLastOrNull() },
                         onTrackClick = { song ->
-                            musicViewModel.playTrack(song)
+                            musicViewModel.playTrack(song, LibraryMockedData.sampleDisplayAlbumTracks)
                             while (backStack.size > 1) {
                                 backStack.removeLastOrNull()
                             }

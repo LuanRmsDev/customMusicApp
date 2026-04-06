@@ -51,6 +51,7 @@ import dev.luanramos.custommusicapp.ui.theme.greyArtist
 import dev.luanramos.custommusicapp.ui.util.canPlayAudio
 import dev.luanramos.custommusicapp.ui.util.formatPlaybackElapsedSlashTotal
 import kotlinx.coroutines.flow.map
+import androidx.compose.runtime.collectAsState
 
 /**
  * Android Auto now-playing layout (Figma Player frame: header, art + meta, seek, wide transport).
@@ -64,13 +65,13 @@ fun CarPlayerScreen(
 ) {
     val state by remember(viewModel) {
         viewModel.uiState.map { it.playbackState }
-    }.collectAsStateWithLifecycle(initialValue = viewModel.uiState.value.playbackState)
+    }.collectAsStateWithLifecycle(initialValue = viewModel.uiState.collectAsState().value.playbackState)
     val track = state.currentTrack
     val canPlay = track.canPlayAudio()
     val durationMs = state.durationMs
     val positionMs = state.positionMs
 
-    var repeatOn by rememberSaveable { mutableStateOf(false) }
+    val repeatOn by viewModel.repeatOne.collectAsStateWithLifecycle()
     var showMenuSheet by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(track?.id) {
@@ -221,7 +222,7 @@ fun CarPlayerScreen(
                         },
                         onSkipPrevious = { viewModel.skipToPrevious() },
                         onSkipNext = { viewModel.skipToNext() },
-                        onRepeatToggle = { repeatOn = !repeatOn },
+                        onRepeatToggle = { viewModel.toggleRepeatOne() },
                         onViewAlbum = onOpenAlbum,
                         onMore = { showMenuSheet = true },
                         albumEnabled = true,

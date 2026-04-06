@@ -54,7 +54,7 @@ fun TabletLibraryNavHost(modifier: Modifier = Modifier) {
                         tracks = LibraryMockedData.sampleDisplayAlbumTracks,
                         onBack = { backStack.removeLastOrNull() },
                         onTrackClick = { song ->
-                            musicViewModel.playTrack(song)
+                            musicViewModel.playTrack(song, LibraryMockedData.sampleDisplayAlbumTracks)
                             while (backStack.size > 1) {
                                 backStack.removeLastOrNull()
                             }

@@ -23,6 +23,11 @@ class MusicViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MusicUiState())
     val uiState: StateFlow<MusicUiState> = _uiState.asStateFlow()
 
+    private val _repeatOne = MutableStateFlow(false)
+    val repeatOne: StateFlow<Boolean> = _repeatOne.asStateFlow()
+
+    private var playQueue: List<Music> = emptyList()
+
     //TODO: The Android Auto and Watch will observe only the mocked data for know, as they don't have a search feature in designs
     private val _mockedDataState = MutableStateFlow(LibraryMockedData)
     val mockedDataState = _mockedDataState.asStateFlow()
@@ -83,11 +88,19 @@ class MusicViewModel @Inject constructor(
         }
     }
 
-    fun playTrack(music: Music) {
+    fun playTrack(music: Music, queue: List<Music> = emptyList()) {
+        playQueue = resolvePlayQueue(queue)
         viewModelScope.launch {
             playback.play(music)
             musicRepository.saveSong(music)
         }
+    }
+
+    private fun resolvePlayQueue(queue: List<Music>): List<Music> {
+        if (queue.isNotEmpty()) return queue
+        val fromUi = _uiState.value.songsList
+        if (fromUi.isNotEmpty()) return fromUi
+        return _mockedDataState.value.songs
     }
 
     fun pause() {
@@ -107,14 +120,49 @@ class MusicViewModel @Inject constructor(
     }
 
     fun skipToPrevious() {
-        playback.skipToPrevious()
+        val pb = playback.state.value
+        val current = pb.currentTrack ?: return
+        if (pb.positionMs > RESTART_SONG_POSITION_THRESHOLD_MS) {
+            playback.seekTo(0L)
+            return
+        }
+        if (playQueue.isEmpty()) {
+            playback.skipToPrevious()
+            return
+        }
+        val idx = playQueue.indexOfFirst { it.id == current.id }
+        if (idx < 0) return
+        val prevIdx = if (idx > 0) idx - 1 else playQueue.lastIndex
+        val prev = playQueue[prevIdx]
+        viewModelScope.launch {
+            playback.play(prev)
+            musicRepository.saveSong(prev)
+        }
     }
 
     fun skipToNext() {
-        playback.skipToNext()
+        val current = playback.state.value.currentTrack ?: return
+        if (playQueue.isEmpty()) {
+            playback.skipToNext()
+            return
+        }
+        val idx = playQueue.indexOfFirst { it.id == current.id }
+        if (idx < 0) return
+        val next = playQueue[(idx + 1) % playQueue.size]
+        viewModelScope.launch {
+            playback.play(next)
+            musicRepository.saveSong(next)
+        }
+    }
+
+    fun toggleRepeatOne() {
+        val next = !_repeatOne.value
+        _repeatOne.value = next
+        playback.setRepeatOne(next)
     }
 
     companion object {
         const val BROWSE_PAGE_SIZE: Int = 20
+        private const val RESTART_SONG_POSITION_THRESHOLD_MS = 3_000L
     }
 }

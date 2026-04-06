@@ -31,7 +31,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +62,7 @@ import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
+import androidx.compose.runtime.collectAsState
 
 /**
  * Wear now playing: full-bleed circular art, metadata and time at top, controls overlaid on art,
@@ -80,13 +80,13 @@ fun WatchPlayerScreen(
 ) {
     val state by remember(viewModel) {
         viewModel.uiState.map { it.playbackState }
-    }.collectAsStateWithLifecycle(initialValue = viewModel.uiState.value.playbackState)
+    }.collectAsStateWithLifecycle(initialValue = viewModel.uiState.collectAsState().value.playbackState)
     val track = state.currentTrack
     val canPlay = track.canPlayAudio()
     val durationMs = state.durationMs
     val positionMs = state.positionMs
 
-    var repeatOn by rememberSaveable { mutableStateOf(false) }
+    val repeatOn by viewModel.repeatOne.collectAsStateWithLifecycle()
 
     var timeText by remember { mutableStateOf(formatWatchTime()) }
     LaunchedEffect(Unit) {
@@ -292,7 +292,7 @@ fun WatchPlayerScreen(
         }
 
         IconButton(
-            onClick = { repeatOn = !repeatOn },
+            onClick = { viewModel.toggleRepeatOne() },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 14.dp)

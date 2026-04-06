@@ -77,7 +77,7 @@ fun WatchLibraryNavHost(modifier: Modifier = Modifier) {
                         tracks = LibraryMockedData.sampleDisplayAlbumTracks,
                         onBack = { backStack.removeLastOrNull() },
                         onTrackClick = { song ->
-                            musicViewModel.playTrack(song)
+                            musicViewModel.playTrack(song, LibraryMockedData.sampleDisplayAlbumTracks)
                             popToMusicHub()
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },

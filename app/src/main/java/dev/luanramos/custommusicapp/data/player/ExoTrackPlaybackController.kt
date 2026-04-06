@@ -211,6 +211,11 @@ class ExoTrackPlaybackController @Inject constructor(
         }
     }
 
+    override fun setRepeatOne(enabled: Boolean) {
+        player.repeatMode =
+            if (enabled) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+    }
+
     override fun release() {
         stopProgressUpdates()
         player.release()

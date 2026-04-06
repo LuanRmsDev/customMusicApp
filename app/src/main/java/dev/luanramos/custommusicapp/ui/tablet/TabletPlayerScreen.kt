@@ -70,7 +70,7 @@ fun TabletPlayerScreen(
     val durationMs = state.durationMs
     val positionMs = state.positionMs
 
-    var repeatOn by rememberSaveable { mutableStateOf(false) }
+    val repeatOn by viewModel.repeatOne.collectAsStateWithLifecycle()
     var showMenuSheet by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(track?.id) {
@@ -179,7 +179,7 @@ fun TabletPlayerScreen(
                         },
                         onSkipPrevious = { viewModel.skipToPrevious() },
                         onSkipNext = { viewModel.skipToNext() },
-                        onRepeatToggle = { repeatOn = !repeatOn }
+                        onRepeatToggle = { viewModel.toggleRepeatOne() }
                     )
                 }
             }

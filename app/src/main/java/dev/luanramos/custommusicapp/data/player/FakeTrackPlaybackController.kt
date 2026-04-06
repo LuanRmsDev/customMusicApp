@@ -52,6 +52,10 @@ object FakeTrackPlaybackController : TrackPlaybackController {
         // No queue in fake
     }
 
+    override fun setRepeatOne(enabled: Boolean) {
+        // Preview / tests: no auto-end to loop
+    }
+
     override fun release() {
         // No native resources
     }

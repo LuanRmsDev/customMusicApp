@@ -54,7 +54,7 @@ fun SmartphoneLibraryNavHost(modifier: Modifier = Modifier) {
                         tracks = LibraryMockedData.sampleDisplayAlbumTracks,
                         onBack = { backStack.removeLastOrNull() },
                         onTrackClick = { song ->
-                            musicViewModel.playTrack(song)
+                            musicViewModel.playTrack(song, LibraryMockedData.sampleDisplayAlbumTracks)
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },
                         modifier = Modifier.fillMaxSize()

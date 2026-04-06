@@ -54,7 +54,7 @@ fun LibraryPlayerScreen(
     val durationMs = state.durationMs
     val positionMs = state.positionMs
 
-    var repeatOn by rememberSaveable { mutableStateOf(false) }
+    val repeatOn by viewModel.repeatOne.collectAsStateWithLifecycle()
     var showMenuSheet by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(track?.id) {
@@ -140,7 +140,7 @@ fun LibraryPlayerScreen(
                             },
                             onSkipPrevious = { viewModel.skipToPrevious() },
                             onSkipNext = { viewModel.skipToNext() },
-                            onRepeatToggle = { repeatOn = !repeatOn }
+                            onRepeatToggle = { viewModel.toggleRepeatOne() }
                         )
                     }
                 }
