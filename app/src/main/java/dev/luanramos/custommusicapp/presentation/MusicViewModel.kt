@@ -55,7 +55,7 @@ class MusicViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
             try {
                 val songs = browseListLastPlayedOrPopular()
-                _uiState.update { it.copy(songsList = songs) }
+                _uiState.update { it.copy(songsList = songs, activeSearchQuery = null) }
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
                 if (emitScrollToTop) {
@@ -129,7 +129,17 @@ class MusicViewModel @Inject constructor(
                             limit = MusicRepository.MAX_ITUNES_SEARCH_LIMIT,
                         )
                     }
-                _uiState.update { it.copy(songsList = songs) }
+                _uiState.update {
+                    it.copy(
+                        songsList = songs,
+                        activeSearchQuery =
+                            if (q.isNotEmpty() && songs.isEmpty()) {
+                                q
+                            } else {
+                                null
+                            },
+                    )
+                }
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
                 _libraryScrollToTop.tryEmit(Unit)

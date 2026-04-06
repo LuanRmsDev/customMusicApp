@@ -50,6 +50,7 @@ import dev.luanramos.custommusicapp.ui.components.PlayerBufferingIndicator
 import dev.luanramos.custommusicapp.ui.components.PlayerErrorMessage
 import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
 import dev.luanramos.custommusicapp.ui.components.PlayerScreenTopBar
+import dev.luanramos.custommusicapp.ui.components.SearchNoResults
 import dev.luanramos.custommusicapp.ui.components.PlayerSeekBar
 import dev.luanramos.custommusicapp.ui.components.TabletPlayerTransportRow
 import dev.luanramos.custommusicapp.ui.components.TabletQueueSongRow
@@ -64,6 +65,7 @@ fun TabletPlayerScreen(
     modifier: Modifier = Modifier
 ) {
     val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val emptySearchQuery = ui.activeSearchQuery
     val state = ui.playbackState
     val track = state.currentTrack
     val canPlay = track.canPlayAudio()
@@ -221,6 +223,15 @@ fun TabletPlayerScreen(
                         ) {
                             CircularProgressIndicator()
                         }
+
+                    ui.songsList.isEmpty() && emptySearchQuery != null ->
+                        SearchNoResults(
+                            searchQuery = emptySearchQuery,
+                            onRetry = { viewModel.submitSearchQuery(emptySearchQuery) },
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                        )
 
                     ui.songsList.isEmpty() ->
                         NoInternetScreen(

@@ -40,6 +40,7 @@ import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.presentation.MusicViewModel
 import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
 import dev.luanramos.custommusicapp.ui.components.LibrarySearchField
+import dev.luanramos.custommusicapp.ui.components.SearchNoResults
 import dev.luanramos.custommusicapp.ui.components.LibrarySongRow
 import dev.luanramos.custommusicapp.ui.components.LibraryTopBar
 import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
@@ -60,6 +61,7 @@ fun LibraryScreen(
 
     val ui by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
+    val emptySearchQuery = ui.activeSearchQuery
 
     LaunchedEffect(Unit) {
         viewModel.libraryScrollToTop.collect {
@@ -133,6 +135,15 @@ fun LibraryScreen(
                     ) {
                         CircularProgressIndicator()
                     }
+
+                ui.songsList.isEmpty() && emptySearchQuery != null ->
+                    SearchNoResults(
+                        searchQuery = emptySearchQuery,
+                        onRetry = retryBrowse,
+                        modifier = Modifier
+                            .weight(1f)
+                            .navigationBarsPadding(),
+                    )
 
                 ui.songsList.isEmpty() ->
                     NoInternetScreen(

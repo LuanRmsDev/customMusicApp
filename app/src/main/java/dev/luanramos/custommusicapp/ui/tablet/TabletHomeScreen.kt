@@ -35,6 +35,7 @@ import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.presentation.MusicViewModel
 import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
 import dev.luanramos.custommusicapp.ui.components.LibrarySearchField
+import dev.luanramos.custommusicapp.ui.components.SearchNoResults
 import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
 import dev.luanramos.custommusicapp.ui.components.TabletSongRow
 import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
@@ -91,6 +92,7 @@ fun TabletHomeScreen(
                 viewModel.retryLoadLibrary()
             }
         }
+        val emptySearchQuery = ui.activeSearchQuery
         when {
             ui.isLoading && ui.songsList.isEmpty() ->
                 Box(
@@ -102,6 +104,15 @@ fun TabletHomeScreen(
                 ) {
                     CircularProgressIndicator()
                 }
+
+            ui.songsList.isEmpty() && emptySearchQuery != null ->
+                SearchNoResults(
+                    searchQuery = emptySearchQuery,
+                    onRetry = retryBrowse,
+                    modifier = Modifier
+                        .weight(1f)
+                        .navigationBarsPadding(),
+                )
 
             ui.songsList.isEmpty() ->
                 NoInternetScreen(

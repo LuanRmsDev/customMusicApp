@@ -53,6 +53,10 @@
     <string name="no_internet_message">We couldn’t load any songs. Check your connection and try again.</string>
     <string name="action_retry">Retry</string>
 
+    <!-- Search: no API results -->
+    <string name="library_search_no_results_title">No songs found</string>
+    <string name="library_search_no_results_message">We couldn’t find any songs for \"%1$s\". Try different words.</string>
+
     <!-- Android Auto -->
     <string name="car_browse_title">Music</string>
     <string name="car_destination_music">Music</string>
