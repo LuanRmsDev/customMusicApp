@@ -59,7 +59,7 @@ class MusicViewModel @Inject constructor(
     private suspend fun browseListLastPlayedOrPopular(): List<Music> {
         val recent = musicRepository.getLastPlayedSongs(limit = BROWSE_PAGE_SIZE, offset = 0)
         return recent.ifEmpty {
-            musicRepository.getPopularSongs(limit = BROWSE_PAGE_SIZE)
+            musicRepository.getPopularSongs(limit = MusicRepository.MAX_ITUNES_SEARCH_LIMIT)
         }
     }
 
@@ -115,7 +115,10 @@ class MusicViewModel @Inject constructor(
                     if (q.isEmpty()) {
                         browseListLastPlayedOrPopular()
                     } else {
-                        musicRepository.searchSong(searchTerm = q, limit = BROWSE_PAGE_SIZE)
+                        musicRepository.searchSong(
+                            searchTerm = q,
+                            limit = MusicRepository.MAX_ITUNES_SEARCH_LIMIT,
+                        )
                     }
                 _uiState.update { it.copy(songsList = songs) }
             } finally {

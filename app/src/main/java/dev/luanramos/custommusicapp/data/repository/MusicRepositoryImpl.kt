@@ -22,19 +22,20 @@ class MusicRepositoryImpl @Inject constructor(
     private val trackMediaDownloader: TrackMediaDownloader,
 ) : MusicRepository {
 
-    override suspend fun getPopularSongs(limit: Int, offset: Int): List<Music> =
+    override suspend fun getPopularSongs(limit: Int): List<Music> =
         withContext(Dispatchers.IO) {
+            val page = limit.coerceIn(1, MusicRepository.MAX_ITUNES_SEARCH_LIMIT)
             runCatching {
                 itunesSearchApi.search(
                     term = MusicRepository.POPULAR_ITUNES_TERM,
                     media = "music",
-                    limit = limit.coerceIn(1, 200),
-                    offset = offset.coerceAtLeast(0),
+                    limit = MusicRepository.MAX_ITUNES_SEARCH_LIMIT,
                 )
             }.getOrNull()
                 ?.results
                 .orEmpty()
                 .mapNotNull { it.toMusicOrNull() }
+                .take(page)
         }
 
     override suspend fun getLastPlayedSongs(limit: Int, offset: Int): List<Music> =
@@ -47,23 +48,24 @@ class MusicRepositoryImpl @Inject constructor(
                 .map { it.toMusic() }
         }
 
-    override suspend fun searchSong(searchTerm: String, limit: Int, offset: Int): List<Music> =
+    override suspend fun searchSong(searchTerm: String, limit: Int): List<Music> =
         withContext(Dispatchers.IO) {
             val term = searchTerm.trim()
             if (term.isEmpty()) {
                 return@withContext emptyList()
             }
+            val page = limit.coerceIn(1, MusicRepository.MAX_ITUNES_SEARCH_LIMIT)
             runCatching {
                 itunesSearchApi.search(
                     term = term,
                     media = "music",
-                    limit = limit.coerceIn(1, 200),
-                    offset = offset.coerceAtLeast(0),
+                    limit = MusicRepository.MAX_ITUNES_SEARCH_LIMIT,
                 )
             }.getOrNull()
                 ?.results
                 .orEmpty()
                 .mapNotNull { it.toMusicOrNull() }
+                .take(page)
         }
 
     override suspend fun getAlbumDetail(anchor: Music): AlbumDetail? =
