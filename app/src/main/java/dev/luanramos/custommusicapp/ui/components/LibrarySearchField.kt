@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -39,6 +40,7 @@ import dev.luanramos.custommusicapp.ui.theme.textSearchHint
 fun LibrarySearchField(
     query: String,
     onQueryChange: (String) -> Unit,
+    onSearchSubmit: () -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = stringResource(R.string.library_search_placeholder),
     focusRequester: FocusRequester? = null
@@ -59,8 +61,14 @@ fun LibrarySearchField(
     ) {
         Icon(
             imageVector = Icons.Filled.Search,
-            contentDescription = null,
-            modifier = Modifier.size(24.dp),
+            contentDescription = stringResource(R.string.library_search_content_description),
+            modifier = Modifier
+                .size(24.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onSearchSubmit,
+                ),
             tint = textSearchHint
         )
         Box(
@@ -82,6 +90,7 @@ fun LibrarySearchField(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Search
                 ),
+                keyboardActions = KeyboardActions(onSearch = { onSearchSubmit() }),
                 decorationBox = { innerTextField -> innerTextField() }
             )
             if (query.isEmpty()) {
@@ -106,6 +115,7 @@ private fun LibrarySearchFieldPreview() {
         LibrarySearchField(
             query = "",
             onQueryChange = {},
+            onSearchSubmit = {},
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
         )
     }

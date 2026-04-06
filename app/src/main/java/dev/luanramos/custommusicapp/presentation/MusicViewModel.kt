@@ -7,8 +7,6 @@ import dev.luanramos.custommusicapp.domain.TrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.domain.repository.MusicRepository
 import javax.inject.Inject
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,8 +22,6 @@ class MusicViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MusicUiState())
     val uiState: StateFlow<MusicUiState> = _uiState.asStateFlow()
 
-    private var searchJob: Job? = null
-
     init {
         viewModelScope.launch {
             playback.state.collect { pb ->
@@ -39,7 +35,7 @@ class MusicViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                val songs = musicRepository.getPopularSongs(limit = BROWSE_PAGE_SIZE)
+                val songs = browseListLastPlayedOrPopular()
                 _uiState.update { it.copy(songsList = songs) }
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
@@ -47,38 +43,46 @@ class MusicViewModel @Inject constructor(
         }
     }
 
-    /** Re-runs the initial popular catalog load (e.g. after a failed network attempt). */
+    private suspend fun browseListLastPlayedOrPopular(): List<Music> {
+        val recent = musicRepository.getLastPlayedSongs(limit = BROWSE_PAGE_SIZE, offset = 0)
+        return recent.ifEmpty {
+            musicRepository.getPopularSongs(limit = BROWSE_PAGE_SIZE)
+        }
+    }
+
+    /** Re-runs the default catalog (recent first, else popular). */
     fun retryLoadLibrary() {
         loadCatalog()
     }
 
     /**
-     * Updates the on-screen browse list: empty query reloads popular tracks; non-empty runs iTunes search.
-     * Debounced to limit API calls while typing.
+     * Loads the browse list for the current search field value. Call when the user submits search
+     * (search button or IME search), not on each keystroke. Empty [query] reloads the default catalog
+     * (recently played from disk when available, otherwise popular from the API).
      */
-    fun onSearchQueryChange(query: String) {
-        searchJob?.cancel()
-        searchJob =
-            viewModelScope.launch {
-                delay(SEARCH_DEBOUNCE_MS)
-                _uiState.update { it.copy(isLoading = true) }
-                try {
-                    val q = query.trim()
-                    val songs =
-                        if (q.isEmpty()) {
-                            musicRepository.getPopularSongs(BROWSE_PAGE_SIZE)
-                        } else {
-                            musicRepository.searchSong(searchTerm = q, limit = BROWSE_PAGE_SIZE)
-                        }
-                    _uiState.update { it.copy(songsList = songs) }
-                } finally {
-                    _uiState.update { it.copy(isLoading = false) }
-                }
+    fun submitSearchQuery(query: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                val q = query.trim()
+                val songs =
+                    if (q.isEmpty()) {
+                        browseListLastPlayedOrPopular()
+                    } else {
+                        musicRepository.searchSong(searchTerm = q, limit = BROWSE_PAGE_SIZE)
+                    }
+                _uiState.update { it.copy(songsList = songs) }
+            } finally {
+                _uiState.update { it.copy(isLoading = false) }
             }
+        }
     }
 
     fun playTrack(music: Music) {
-        playback.play(music)
+        viewModelScope.launch {
+            playback.play(music)
+            musicRepository.saveSong(music)
+        }
     }
 
     fun pause() {
@@ -107,6 +111,5 @@ class MusicViewModel @Inject constructor(
 
     companion object {
         const val BROWSE_PAGE_SIZE: Int = 20
-        private const val SEARCH_DEBOUNCE_MS: Long = 320L
     }
 }

@@ -71,15 +71,13 @@ fun TabletHomeScreen(
         )
         LibrarySearchField(
             query = searchQuery,
-            onQueryChange = { q ->
-                searchQuery = q
-                viewModel.onSearchQueryChange(q)
-            },
+            onQueryChange = { searchQuery = it },
+            onSearchSubmit = { viewModel.submitSearchQuery(searchQuery) },
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 0.dp)
         )
         val retryBrowse: () -> Unit = {
             if (searchQuery.isNotBlank()) {
-                viewModel.onSearchQueryChange(searchQuery)
+                viewModel.submitSearchQuery(searchQuery)
             } else {
                 viewModel.retryLoadLibrary()
             }

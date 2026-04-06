@@ -64,12 +64,6 @@ fun LibraryScreen(
     }
     val menuSong = remember(menuSongId) { menuSongId?.let { songsById[it] } }
 
-    LaunchedEffect(searchQuery, isSearchActive) {
-        if (isSearchActive) {
-            viewModel.onSearchQueryChange(searchQuery)
-        }
-    }
-
     LaunchedEffect(isSearchActive) {
         if (isSearchActive) {
             searchFocusRequester.requestFocus()
@@ -91,7 +85,7 @@ fun LibraryScreen(
                 onSearchToggleClick = {
                     if (isSearchActive) {
                         searchQuery = ""
-                        viewModel.onSearchQueryChange("")
+                        viewModel.submitSearchQuery("")
                         keyboard?.hide()
                     }
                     isSearchActive = !isSearchActive
@@ -105,13 +99,17 @@ fun LibraryScreen(
                 LibrarySearchField(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
+                    onSearchSubmit = {
+                        keyboard?.hide()
+                        viewModel.submitSearchQuery(searchQuery)
+                    },
                     focusRequester = searchFocusRequester,
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
                 )
             }
             val retryBrowse: () -> Unit = {
                 if (isSearchActive && searchQuery.isNotBlank()) {
-                    viewModel.onSearchQueryChange(searchQuery)
+                    viewModel.submitSearchQuery(searchQuery)
                 } else {
                     viewModel.retryLoadLibrary()
                 }
