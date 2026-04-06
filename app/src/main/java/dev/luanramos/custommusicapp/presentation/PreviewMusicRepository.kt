@@ -1,6 +1,7 @@
 package dev.luanramos.custommusicapp.presentation
 
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
+import dev.luanramos.custommusicapp.domain.model.AlbumDetail
 import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.domain.repository.MusicRepository
 
@@ -19,6 +20,13 @@ internal object PreviewMusicRepository : MusicRepository {
             m.title.contains(q, ignoreCase = true) || m.artist.contains(q, ignoreCase = true)
         }.take(limit)
     }
+
+    override suspend fun getAlbumDetail(anchor: Music): AlbumDetail? =
+        AlbumDetail(
+            title = LibraryMockedData.sampleDisplayAlbumTitle,
+            artistName = LibraryMockedData.sampleDisplayAlbumArtist,
+            tracks = LibraryMockedData.sampleDisplayAlbumTracks,
+        )
 
     override suspend fun saveSong(music: Music) = Unit
 

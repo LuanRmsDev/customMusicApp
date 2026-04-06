@@ -3,6 +3,7 @@ package dev.luanramos.custommusicapp.ui.watch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +36,7 @@ fun WatchAlbumScreen(
     albumTitle: String,
     artistName: String,
     tracks: List<Music>,
+    isLoading: Boolean = false,
     onBack: () -> Unit,
     onTrackClick: (Music) -> Unit,
     modifier: Modifier = Modifier
@@ -48,51 +51,64 @@ fun WatchAlbumScreen(
             onBack = onBack,
             modifier = Modifier.padding(top = 4.dp)
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            TrackAlbumArt(
-                track = tracks.firstOrNull(),
-                size = 48.dp,
-                cornerDp = 8.dp,
-            )
-            Column(
-                modifier = Modifier.weight(1f),
+        if (isLoading && tracks.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                TrackAlbumArt(
+                    track = tracks.firstOrNull(),
+                    size = 48.dp,
+                    cornerDp = 8.dp,
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(
+                        text = albumTitle,
+                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp, lineHeight = 16.sp),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = artistName,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(start = 14.dp, end = 14.dp, bottom = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Text(
-                    text = albumTitle,
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp, lineHeight = 16.sp),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = artistName,
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 14.dp, end = 14.dp, bottom = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            items(
-                items = tracks,
-                key = { it.id }
-            ) { track ->
-                WatchAlbumTrackRow(
-                    track = track,
-                    onClick = { onTrackClick(track) }
-                )
+                items(
+                    items = tracks,
+                    key = { it.id }
+                ) { track ->
+                    WatchAlbumTrackRow(
+                        track = track,
+                        onClick = { onTrackClick(track) }
+                    )
+                }
             }
         }
     }

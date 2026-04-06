@@ -9,13 +9,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
-import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
 import dev.luanramos.custommusicapp.presentation.MusicViewModel
 import dev.luanramos.custommusicapp.ui.androidauto.CarAlbumListScreen
 import dev.luanramos.custommusicapp.ui.androidauto.CarBrowseScreen
 import dev.luanramos.custommusicapp.ui.androidauto.CarPlayerScreen
 import kotlinx.coroutines.flow.map
-import androidx.compose.runtime.collectAsState
 
 @Composable
 fun CarLibraryNavHost(modifier: Modifier = Modifier) {
@@ -23,8 +21,9 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
     val currentTrackId by remember(musicViewModel) {
         musicViewModel.uiState.map { it.playbackState.currentTrack?.id }
     }.collectAsStateWithLifecycle(
-        initialValue = musicViewModel.uiState.collectAsState().value.playbackState.currentTrack?.id,
+        initialValue = musicViewModel.uiState.value.playbackState.currentTrack?.id,
     )
+    val album by musicViewModel.albumScreenState.collectAsStateWithLifecycle()
     val mocked by musicViewModel.mockedDataState.collectAsStateWithLifecycle()
     val backStack = rememberLibraryBackStack(saveKey = "android_auto_nav")
 
@@ -53,6 +52,9 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
                         viewModel = musicViewModel,
                         onBackToMusic = { backStack.removeLastOrNull() },
                         onOpenAlbum = {
+                            musicViewModel.uiState.value.playbackState.currentTrack?.let { t ->
+                                musicViewModel.loadAlbumFromTrack(t)
+                            }
                             backStack.add(LibraryDestination.AlbumDisplayScreen)
                         },
                         modifier = Modifier.fillMaxSize()
@@ -61,12 +63,13 @@ fun CarLibraryNavHost(modifier: Modifier = Modifier) {
 
                 is LibraryDestination.AlbumDisplayScreen -> NavEntry(key) {
                     CarAlbumListScreen(
-                        albumTitle = LibraryMockedData.sampleDisplayAlbumTitle,
-                        tracks = LibraryMockedData.sampleDisplayAlbumTracks,
+                        albumTitle = album.albumTitle,
+                        tracks = album.tracks,
+                        isLoading = album.isLoading,
                         currentTrackId = currentTrackId,
                         onBack = { backStack.removeLastOrNull() },
                         onTrackClick = { song ->
-                            musicViewModel.playTrack(song, LibraryMockedData.sampleDisplayAlbumTracks)
+                            musicViewModel.playTrack(song, album.tracks)
                             while (backStack.size > 1) {
                                 backStack.removeLastOrNull()
                             }

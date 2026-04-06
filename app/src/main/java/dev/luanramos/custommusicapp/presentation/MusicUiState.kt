@@ -8,3 +8,10 @@ data class MusicUiState(
     val isLoading: Boolean = false,
     val songsList: List<Music> = emptyList(),
 )
+
+data class AlbumScreenState(
+    val albumTitle: String = "",
+    val artistName: String = "",
+    val tracks: List<Music> = emptyList(),
+    val isLoading: Boolean = false,
+)

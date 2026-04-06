@@ -50,6 +50,9 @@ interface MusicLibraryDao {
                 row.copy(
                     localAudioPath = music.localAudioPath ?: existing.localAudioPath,
                     localArtworkPath = music.localArtworkPath ?: existing.localArtworkPath,
+                    albumTitle = row.albumTitle ?: existing.albumTitle,
+                    amgAlbumId = row.amgAlbumId ?: existing.amgAlbumId,
+                    collectionId = row.collectionId ?: existing.collectionId,
                     artworkUrl30 = row.artworkUrl30 ?: existing.artworkUrl30,
                     artworkUrl60 = row.artworkUrl60 ?: existing.artworkUrl60,
                     artworkUrl100 = row.artworkUrl100 ?: existing.artworkUrl100,

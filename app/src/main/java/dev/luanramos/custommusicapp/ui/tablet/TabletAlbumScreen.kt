@@ -2,6 +2,7 @@ package dev.luanramos.custommusicapp.ui.tablet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,6 +38,7 @@ fun TabletAlbumScreen(
     albumTitle: String,
     artistName: String,
     tracks: List<Music>,
+    isLoading: Boolean = false,
     onBack: () -> Unit,
     onTrackClick: (Music) -> Unit,
     modifier: Modifier = Modifier
@@ -51,66 +54,77 @@ fun TabletAlbumScreen(
             title = albumTitle,
             onBack = onBack
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            Surface(
-                modifier = Modifier.size(120.dp),
-                shape = RoundedCornerShape(16.dp),
-                shadowElevation = 12.dp,
-                color = MaterialTheme.colorScheme.background
+        if (isLoading && tracks.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center,
             ) {
-                TrackAlbumArt(
-                    track = tracks.firstOrNull(),
-                    size = 120.dp,
-                    cornerDp = 16.dp,
-                    highRes = true,
-                )
+                CircularProgressIndicator()
             }
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Text(
-                    text = albumTitle,
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontSize = 28.sp,
-                        lineHeight = 34.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = artistName,
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Surface(
+                    modifier = Modifier.size(120.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    shadowElevation = 12.dp,
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    TrackAlbumArt(
+                        track = tracks.firstOrNull(),
+                        size = 120.dp,
+                        cornerDp = 16.dp,
+                        highRes = true,
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = albumTitle,
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontSize = 28.sp,
+                            lineHeight = 34.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = artistName,
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
-        }
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 24.dp)
-        ) {
-            items(
-                items = tracks,
-                key = { it.id }
-            ) { track ->
-                TabletSongRow(
-                    title = track.title,
-                    artist = track.artist,
-                    track = track,
-                    showOverflowMenu = false,
-                    onRowClick = { onTrackClick(track) }
-                )
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 24.dp)
+            ) {
+                items(
+                    items = tracks,
+                    key = { it.id }
+                ) { track ->
+                    TabletSongRow(
+                        title = track.title,
+                        artist = track.artist,
+                        track = track,
+                        showOverflowMenu = false,
+                        onRowClick = { onTrackClick(track) }
+                    )
+                }
             }
         }
     }

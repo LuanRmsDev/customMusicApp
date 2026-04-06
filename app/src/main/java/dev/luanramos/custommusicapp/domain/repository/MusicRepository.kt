@@ -1,5 +1,6 @@
 package dev.luanramos.custommusicapp.domain.repository
 
+import dev.luanramos.custommusicapp.domain.model.AlbumDetail
 import dev.luanramos.custommusicapp.domain.model.Music
 
 interface MusicRepository {
@@ -35,6 +36,13 @@ interface MusicRepository {
         limit: Int = DEFAULT_PAGE_SIZE,
         offset: Int = 0,
     ): List<Music>
+
+    /**
+     * Loads album metadata and playable tracks via iTunes **lookup**: prefers [Music.amgAlbumId]
+     * (`amgAlbumId=…&entity=song`), otherwise [Music.collectionId] (`id=_collectionId_&entity=song`).
+     * Returns `null` when both ids are missing or the request / mapping yields no playable tracks.
+     */
+    suspend fun getAlbumDetail(anchor: Music): AlbumDetail?
 
     /**
      * **Inserts or updates the full track row** in the library DB: downloads preview audio and artwork when URLs are present,

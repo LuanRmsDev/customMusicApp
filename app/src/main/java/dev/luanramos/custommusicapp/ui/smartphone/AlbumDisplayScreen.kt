@@ -1,6 +1,7 @@
 package dev.luanramos.custommusicapp.ui.smartphone
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,6 +39,7 @@ fun AlbumDisplayScreen(
     albumTitle: String,
     artistName: String,
     tracks: List<Music>,
+    isLoading: Boolean = false,
     onBack: () -> Unit,
     onTrackClick: (Music) -> Unit,
     modifier: Modifier = Modifier
@@ -54,7 +57,16 @@ fun AlbumDisplayScreen(
             title = albumTitle,
             onBack = onBack
         )
-        if (phoneLandscape) {
+        if (isLoading && tracks.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        } else if (phoneLandscape) {
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)

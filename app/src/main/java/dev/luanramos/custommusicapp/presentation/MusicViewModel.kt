@@ -26,6 +26,9 @@ class MusicViewModel @Inject constructor(
     private val _repeatOne = MutableStateFlow(false)
     val repeatOne: StateFlow<Boolean> = _repeatOne.asStateFlow()
 
+    private val _albumScreenState = MutableStateFlow(AlbumScreenState())
+    val albumScreenState: StateFlow<AlbumScreenState> = _albumScreenState.asStateFlow()
+
     private var playQueue: List<Music> = emptyList()
 
     //TODO: The Android Auto and Watch will observe only the mocked data for know, as they don't have a search feature in designs
@@ -63,6 +66,39 @@ class MusicViewModel @Inject constructor(
     /** Re-runs the default catalog (recent first, else popular). */
     fun retryLoadLibrary() {
         loadCatalog()
+    }
+
+    /**
+     * Loads album tracks via iTunes lookup ([Music.amgAlbumId] preferred, else [Music.collectionId]).
+     * On failure or missing ids, falls back to a single-track “album” using [anchor].
+     */
+    fun loadAlbumFromTrack(anchor: Music) {
+        viewModelScope.launch {
+            _albumScreenState.value =
+                AlbumScreenState(
+                    albumTitle = anchor.albumTitle.orEmpty(),
+                    artistName = anchor.artist,
+                    tracks = emptyList(),
+                    isLoading = true,
+                )
+            val detail = musicRepository.getAlbumDetail(anchor)
+            _albumScreenState.value =
+                if (detail != null) {
+                    AlbumScreenState(
+                        albumTitle = detail.title,
+                        artistName = detail.artistName,
+                        tracks = detail.tracks,
+                        isLoading = false,
+                    )
+                } else {
+                    AlbumScreenState(
+                        albumTitle = anchor.albumTitle ?: anchor.title,
+                        artistName = anchor.artist,
+                        tracks = listOf(anchor),
+                        isLoading = false,
+                    )
+                }
+        }
     }
 
     /**

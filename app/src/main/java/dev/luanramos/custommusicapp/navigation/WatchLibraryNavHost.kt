@@ -2,8 +2,10 @@ package dev.luanramos.custommusicapp.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import dev.luanramos.custommusicapp.data.mock.LibraryMockedData
@@ -20,6 +22,7 @@ import dev.luanramos.custommusicapp.ui.watch.WatchPlayerScreen
 @Composable
 fun WatchLibraryNavHost(modifier: Modifier = Modifier) {
     val musicViewModel: MusicViewModel = hiltViewModel()
+    val album by musicViewModel.albumScreenState.collectAsStateWithLifecycle()
     val backStack = rememberLibraryBackStack(saveKey = "smartwatch_nav")
 
     fun popToMusicHub() {
@@ -39,6 +42,9 @@ fun WatchLibraryNavHost(modifier: Modifier = Modifier) {
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },
                         onAlbumsClick = {
+                            musicViewModel.loadAlbumFromTrack(
+                                LibraryMockedData.sampleDisplayAlbumTracks.first(),
+                            )
                             backStack.add(LibraryDestination.AlbumDisplayScreen)
                         },
                         onSongsClick = {
@@ -63,6 +69,9 @@ fun WatchLibraryNavHost(modifier: Modifier = Modifier) {
                     WatchPlayerScreen(
                         viewModel = musicViewModel,
                         onPlayerMenuViewAlbum = {
+                            musicViewModel.uiState.value.playbackState.currentTrack?.let { t ->
+                                musicViewModel.loadAlbumFromTrack(t)
+                            }
                             backStack.add(LibraryDestination.AlbumDisplayScreen)
                         },
                         onSwipeDownToMainNav = { popToMusicHub() },
@@ -72,12 +81,13 @@ fun WatchLibraryNavHost(modifier: Modifier = Modifier) {
 
                 is LibraryDestination.AlbumDisplayScreen -> NavEntry(key) {
                     WatchAlbumScreen(
-                        albumTitle = LibraryMockedData.sampleDisplayAlbumTitle,
-                        artistName = LibraryMockedData.sampleDisplayAlbumArtist,
-                        tracks = LibraryMockedData.sampleDisplayAlbumTracks,
+                        albumTitle = album.albumTitle,
+                        artistName = album.artistName,
+                        tracks = album.tracks,
+                        isLoading = album.isLoading,
                         onBack = { backStack.removeLastOrNull() },
                         onTrackClick = { song ->
-                            musicViewModel.playTrack(song, LibraryMockedData.sampleDisplayAlbumTracks)
+                            musicViewModel.playTrack(song, album.tracks)
                             popToMusicHub()
                             backStack.add(LibraryDestination.LibraryPlayerScreen)
                         },

@@ -2,6 +2,7 @@ package dev.luanramos.custommusicapp.ui.androidauto
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +36,7 @@ import dev.luanramos.custommusicapp.ui.theme.CustomMusicAppTheme
 fun CarAlbumListScreen(
     albumTitle: String,
     tracks: List<Music>,
+    isLoading: Boolean = false,
     currentTrackId: String?,
     onBack: () -> Unit,
     onTrackClick: (Music) -> Unit,
@@ -69,17 +72,27 @@ fun CarAlbumListScreen(
                 modifier = Modifier.weight(1f)
             )
         }
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            items(items = tracks, key = { it.id }) { track ->
-                CarSongRow(
-                    title = track.title,
-                    artist = track.artist,
-                    isPlaying = track.id == currentTrackId,
-                    onClick = { onTrackClick(track) }
-                )
+        if (isLoading && tracks.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(items = tracks, key = { it.id }) { track ->
+                    CarSongRow(
+                        title = track.title,
+                        artist = track.artist,
+                        isPlaying = track.id == currentTrackId,
+                        track = track,
+                        onClick = { onTrackClick(track) }
+                    )
+                }
             }
         }
     }
@@ -92,6 +105,7 @@ private fun CarAlbumListScreenPreview() {
         CarAlbumListScreen(
             albumTitle = LibraryMockedData.sampleDisplayAlbumTitle,
             tracks = LibraryMockedData.sampleDisplayAlbumTracks,
+            isLoading = false,
             currentTrackId = LibraryMockedData.sampleDisplayAlbumTracks.firstOrNull()?.id,
             onBack = {},
             onTrackClick = {}

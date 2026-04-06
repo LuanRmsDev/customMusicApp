@@ -106,5 +106,42 @@ fun ItunesSearchResultDto.toMusicOrNull(): Music? {
         artist = artistName?.takeIf { it.isNotBlank() } ?: "Unknown artist",
         songUrl = url,
         artwork = toMusicArtworkOrNull(),
+        albumTitle = collectionName?.takeIf { it.isNotBlank() },
+        amgAlbumId = amgAlbumId?.takeIf { it > 0 },
+        collectionId = collectionId?.takeIf { it > 0 },
     )
+}
+
+/**
+ * Parses `lookup` JSON: skips the collection row; fills missing per-track artwork from the collection row;
+ * normalizes shared album ids; sorts by disc then track number when present.
+ */
+fun List<ItunesSearchResultDto>.mapLookupResultsToAlbumTracks(): List<Music> {
+    val collectionRow = firstOrNull { it.wrapperType == "collection" }
+    val fallbackArt = collectionRow?.toMusicArtworkOrNull()
+        ?: firstOrNull { (it.collectionId ?: 0L) > 0L }?.toMusicArtworkOrNull()
+    val albumTitle = collectionRow?.collectionName?.takeIf { it.isNotBlank() }
+    val sharedAmg = collectionRow?.amgAlbumId?.takeIf { it > 0 }
+        ?: firstOrNull { (it.amgAlbumId ?: 0L) > 0L }?.amgAlbumId?.takeIf { it > 0 }
+    val sharedCollectionId = collectionRow?.collectionId?.takeIf { it > 0 }
+        ?: firstOrNull { (it.collectionId ?: 0L) > 0L }?.collectionId?.takeIf { it > 0 }
+    return mapNotNull { dto ->
+        if (dto.wrapperType == "collection") return@mapNotNull null
+        val m = dto.toMusicOrNull() ?: return@mapNotNull null
+        val art = m.artwork ?: fallbackArt
+        val disc = dto.discNumber ?: 1
+        val trackNum = dto.trackNumber ?: 0
+        Triple(
+            m.copy(
+                artwork = art,
+                albumTitle = m.albumTitle ?: albumTitle,
+                amgAlbumId = m.amgAlbumId ?: sharedAmg,
+                collectionId = m.collectionId ?: sharedCollectionId,
+            ),
+            disc,
+            trackNum,
+        )
+    }
+        .sortedWith(compareBy({ it.second }, { it.third }))
+        .map { it.first }
 }
