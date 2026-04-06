@@ -5,9 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,6 +37,7 @@ import dev.luanramos.custommusicapp.data.player.FakeTrackPlaybackController
 import dev.luanramos.custommusicapp.domain.model.Music
 import dev.luanramos.custommusicapp.presentation.MusicViewModel
 import dev.luanramos.custommusicapp.presentation.PreviewMusicRepository
+import dev.luanramos.custommusicapp.ui.components.LibraryPullRefresh
 import dev.luanramos.custommusicapp.ui.components.LibrarySearchField
 import dev.luanramos.custommusicapp.ui.components.SearchNoResults
 import dev.luanramos.custommusicapp.ui.components.PlayerMenuBottomSheet
@@ -93,59 +97,69 @@ fun TabletHomeScreen(
             }
         }
         val emptySearchQuery = ui.activeSearchQuery
-        when {
-            ui.isLoading && ui.songsList.isEmpty() ->
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize()
-                        .navigationBarsPadding(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
-
-            ui.songsList.isEmpty() && emptySearchQuery != null ->
-                SearchNoResults(
-                    searchQuery = emptySearchQuery,
-                    onRetry = retryBrowse,
-                    modifier = Modifier
-                        .weight(1f)
-                        .navigationBarsPadding(),
-                )
-
-            ui.songsList.isEmpty() ->
-                NoInternetScreen(
-                    onRetry = retryBrowse,
-                    modifier = Modifier
-                        .weight(1f)
-                        .navigationBarsPadding(),
-                )
-
-            else ->
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .weight(1f)
-                        .navigationBarsPadding(),
-                    contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 24.dp)
-                ) {
-                    items(
-                        items = ui.songsList,
-                        key = { it.id }
-                    ) { song ->
-                        TabletSongRow(
-                            title = song.title,
-                            artist = song.artist,
-                            track = song,
-                            onRowClick = {
-                                viewModel.playTrack(song)
-                                onOpenPlayer()
-                            },
-                            onMoreClick = { menuSongId = song.id }
-                        )
+        LibraryPullRefresh(
+            isRefreshing = ui.isLoading,
+            onRefresh = { viewModel.refreshBrowse(searchQuery) },
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+        ) {
+            when {
+                ui.isLoading && ui.songsList.isEmpty() ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding()
+                            .verticalScroll(rememberScrollState()),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
                     }
-                }
+
+                ui.songsList.isEmpty() && emptySearchQuery != null ->
+                    SearchNoResults(
+                        searchQuery = emptySearchQuery,
+                        onRetry = retryBrowse,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding()
+                            .verticalScroll(rememberScrollState()),
+                    )
+
+                ui.songsList.isEmpty() ->
+                    NoInternetScreen(
+                        onRetry = retryBrowse,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding()
+                            .verticalScroll(rememberScrollState()),
+                    )
+
+                else ->
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding(),
+                        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 24.dp)
+                    ) {
+                        items(
+                            items = ui.songsList,
+                            key = { it.id }
+                        ) { song ->
+                            TabletSongRow(
+                                title = song.title,
+                                artist = song.artist,
+                                track = song,
+                                onRowClick = {
+                                    viewModel.playTrack(song)
+                                    onOpenPlayer()
+                                },
+                                onMoreClick = { menuSongId = song.id }
+                            )
+                        }
+                    }
+            }
         }
     }
 

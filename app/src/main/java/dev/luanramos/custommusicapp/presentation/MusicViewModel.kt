@@ -78,6 +78,18 @@ class MusicViewModel @Inject constructor(
     }
 
     /**
+     * Pull-to-refresh: reloads the default catalog when [query] is blank, otherwise repeats the search.
+     */
+    fun refreshBrowse(query: String) {
+        val q = query.trim()
+        if (q.isEmpty()) {
+            loadCatalog(emitScrollToTop = true)
+        } else {
+            submitSearchQuery(q)
+        }
+    }
+
+    /**
      * Loads album tracks via iTunes lookup ([Music.amgAlbumId] preferred, else [Music.collectionId]).
      * On failure or missing ids, falls back to a single-track “album” using [anchor].
      */
