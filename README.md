@@ -2,8 +2,6 @@
 
 An Android music browser and player that loads catalog and search results from the **iTunes Search API**, keeps a **local library** (Room), and plays **preview streams** with **Media3 / ExoPlayer**. The UI adapts to **phone, tablet, Wear OS, and Android Auto–style** environments using a shared navigation and presentation layer.
 
-Recording sources for the clips below live in the [`gif/`](gif/) folder at the repo root.
-
 ---
 
 ### Phone
